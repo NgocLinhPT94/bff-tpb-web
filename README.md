@@ -145,7 +145,7 @@ bff-tpb-web/
 ### 1. Install Dependencies
 
 ```bash
-cd /Users/truongnh/Desktop/tpb-web/bff-tpb-web
+cd bff-tpb-web
 npm install
 ```
 
