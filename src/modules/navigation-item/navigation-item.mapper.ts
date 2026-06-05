@@ -1,25 +1,33 @@
 import {
   mapMedia,
-  mapRelationSummary,
   removeUndefined,
   type MediaSummaryDto,
   type RelationSummaryDto,
   type StrapiMediaInput,
 } from '../shared/strapi-mapper';
+import type {
+  CmsNavigation,
+  CmsNavigationItem,
+} from '../../infrastructure/strapi/cms-types';
 
 export const NAVIGATION_ITEM_MAX_CHILD_DEPTH = 5;
 
-export interface StrapiNavigationItem {
-  documentId: string;
-  name?: string | null;
-  title?: string | null;
-  url?: string | null;
-  order?: number | null;
-  icon?: StrapiMediaInput | null;
-  navigation?: Record<string, unknown> | null;
-  parent?: Record<string, unknown> | null;
-  children?: StrapiNavigationItem[] | null;
-}
+type RelationSummaryInput = Pick<CmsNavigationItem, 'documentId'> &
+  Partial<Pick<CmsNavigationItem, 'id' | 'name' | 'title' | 'url' | 'order'>> &
+  Partial<Pick<CmsNavigation, 'type_menu'>> & {
+    navigation_items?: Array<Partial<CmsNavigationItem>> | null;
+    children?: NavigationItemMapperInput[] | null;
+  };
+
+export type NavigationItemMapperInput = Pick<CmsNavigationItem, 'documentId'> &
+  Partial<
+    Pick<CmsNavigationItem, 'id' | 'name' | 'title' | 'url' | 'order'>
+  > & {
+    icon?: StrapiMediaInput | null;
+    navigation?: RelationSummaryInput | null;
+    parent?: NavigationItemMapperInput | null;
+    children?: NavigationItemMapperInput[] | null;
+  };
 
 export interface NavigationItemDto {
   documentId: string;
@@ -34,13 +42,13 @@ export interface NavigationItemDto {
 }
 
 export function mapNavigationItem(
-  item: StrapiNavigationItem,
+  item: NavigationItemMapperInput,
 ): NavigationItemDto {
   return mapNavigationItemAtDepth(item, 0, new Set<string>());
 }
 
 function mapNavigationItemAtDepth(
-  item: StrapiNavigationItem,
+  item: NavigationItemMapperInput,
   depth: number,
   ancestors: Set<string>,
 ): NavigationItemDto {
@@ -54,14 +62,14 @@ function mapNavigationItemAtDepth(
     url: item.url ?? undefined,
     order: item.order ?? undefined,
     icon: mapMedia(item.icon),
-    navigation: mapRelationSummary(item.navigation),
-    parent: mapRelationSummary(item.parent),
+    navigation: mapRelationSummaryInput(item.navigation),
+    parent: mapRelationSummaryInput(item.parent),
     children: mapChildren(item.children, depth, nextAncestors),
   });
 }
 
 function mapChildren(
-  children: StrapiNavigationItem[] | null | undefined,
+  children: NavigationItemMapperInput[] | null | undefined,
   depth: number,
   ancestors: Set<string>,
 ): NavigationItemDto[] {
@@ -75,5 +83,22 @@ function mapChildren(
     }
 
     return [mapNavigationItemAtDepth(child, depth + 1, ancestors)];
+  });
+}
+
+function mapRelationSummaryInput(
+  relation: RelationSummaryInput | null | undefined,
+): RelationSummaryDto | undefined {
+  if (!relation) {
+    return undefined;
+  }
+
+  return removeUndefined({
+    documentId: relation.documentId,
+    name: relation.name ?? undefined,
+    title: relation.title ?? undefined,
+    url: relation.url ?? undefined,
+    order: relation.order ?? undefined,
+    type_menu: relation.type_menu ?? undefined,
   });
 }

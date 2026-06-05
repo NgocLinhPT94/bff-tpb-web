@@ -1,15 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ListQueryDto } from '../../common/query';
+import type { CmsProduct } from '../../infrastructure/strapi/cms-types';
 import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
 import type {
   StrapiListResponse,
   StrapiSingleResponse,
 } from '../shared/strapi-mapper';
-import {
-  mapProduct,
-  mapProducts,
-  type ProductStrapiEntity,
-} from './products.mapper';
+import { mapProduct, mapProducts } from './products.mapper';
 import type { ProductDto } from './products.dto';
 
 const PRODUCT_POPULATE_PARAMS = {
@@ -26,7 +23,7 @@ export class ProductsService {
 
   async findAll(query: ListQueryDto): Promise<StrapiListResponse<ProductDto>> {
     const response = await this.strapiClient.get<
-      StrapiListResponse<ProductStrapiEntity>
+      StrapiListResponse<CmsProduct>
     >('/products', {
       params: {
         ...PRODUCT_POPULATE_PARAMS,
@@ -44,7 +41,7 @@ export class ProductsService {
 
   async findOne(documentId: string): Promise<ProductDto> {
     const response = await this.strapiClient.get<
-      StrapiSingleResponse<ProductStrapiEntity>
+      StrapiSingleResponse<CmsProduct>
     >(`/products/${documentId}`, {
       params: PRODUCT_POPULATE_PARAMS,
     });

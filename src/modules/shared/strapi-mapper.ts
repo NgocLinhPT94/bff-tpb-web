@@ -15,8 +15,8 @@ export interface StrapiSingleResponse<T> {
 
 export type StrapiEntity = Record<string, unknown>;
 
-export interface StrapiMediaInput extends StrapiEntity {
-  url?: string;
+export interface StrapiMediaInput {
+  url?: string | null;
   alternativeText?: string | null;
   width?: number | null;
   height?: number | null;

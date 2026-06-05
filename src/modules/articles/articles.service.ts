@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { PaginationMeta } from '../../common/dto';
 import type { ListQueryDto } from '../../common/query';
+import type { CmsArticle } from '../../infrastructure/strapi/cms-types';
 import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
 import { mapArticle, mapArticles, type ArticleDto } from './articles.mapper';
 import type {
-  StrapiEntity,
   StrapiListResponse,
   StrapiSingleResponse,
 } from '../shared/strapi-mapper';
@@ -26,7 +26,7 @@ export class ArticlesService {
 
   async findAll(query: ListQueryDto): Promise<ArticleListResult> {
     const response = await this.strapiClient.get<
-      StrapiListResponse<StrapiEntity>
+      StrapiListResponse<CmsArticle>
     >('/articles', {
       params: {
         'pagination[page]': query.page,
@@ -44,7 +44,7 @@ export class ArticlesService {
 
   async findOne(documentId: string): Promise<ArticleDto> {
     const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiEntity>
+      StrapiSingleResponse<CmsArticle>
     >(`/articles/${documentId}`, {
       params: ARTICLES_POPULATE_PARAMS,
     });

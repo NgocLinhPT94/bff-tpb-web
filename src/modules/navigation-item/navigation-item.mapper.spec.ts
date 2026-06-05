@@ -1,6 +1,7 @@
+import type { CmsNavigationItem } from '../../infrastructure/strapi/cms-types';
 import {
   mapNavigationItem,
-  type StrapiNavigationItem,
+  type NavigationItemMapperInput,
 } from './navigation-item.mapper';
 
 describe('mapNavigationItem', () => {
@@ -12,7 +13,7 @@ describe('mapNavigationItem', () => {
         navigation: null,
         parent: null,
         children: null,
-      }),
+      } satisfies NavigationItemMapperInput),
     ).toEqual({
       documentId: 'item-doc',
       title: 'Home',
@@ -21,12 +22,17 @@ describe('mapNavigationItem', () => {
   });
 
   it('maps empty children arrays', () => {
-    expect(mapNavigationItem({ documentId: 'item-doc', children: [] })).toEqual(
-      {
-        documentId: 'item-doc',
-        children: [],
-      },
-    );
+    const input = {
+      documentId: 'item-doc',
+      id: 1,
+      publishedAt: '2026-06-05T00:00:00.000Z',
+      children: [],
+    } satisfies CmsNavigationItem;
+
+    expect(mapNavigationItem(input)).toEqual({
+      documentId: 'item-doc',
+      children: [],
+    });
   });
 
   it('omits missing media and strips back-reference collections from relation summaries', () => {
@@ -37,14 +43,16 @@ describe('mapNavigationItem', () => {
         navigation: {
           documentId: 'nav-doc',
           name: 'Header',
-          navigation_items: [{ documentId: 'other-item' }],
+          navigation_items: [
+            { documentId: 'other-item', id: 1, publishedAt: '2024-01-01' },
+          ],
         },
         parent: {
           documentId: 'parent-doc',
           title: 'Parent',
           children: [{ documentId: 'child-doc' }],
         },
-      }),
+      } satisfies NavigationItemMapperInput),
     ).toEqual({
       documentId: 'item-doc',
       navigation: { documentId: 'nav-doc', name: 'Header' },
@@ -66,7 +74,7 @@ describe('mapNavigationItem', () => {
   });
 
   it('drops cyclic child references', () => {
-    const root: StrapiNavigationItem = { documentId: 'root' };
+    const root: NavigationItemMapperInput = { documentId: 'root' };
     root.children = [{ documentId: 'child', children: [root] }];
 
     expect(mapNavigationItem(root)).toEqual({
@@ -76,12 +84,12 @@ describe('mapNavigationItem', () => {
   });
 });
 
-function buildChain(length: number): StrapiNavigationItem {
-  const root: StrapiNavigationItem = { documentId: 'item-0' };
+function buildChain(length: number): NavigationItemMapperInput {
+  const root: NavigationItemMapperInput = { documentId: 'item-0' };
   let current = root;
 
   for (let index = 1; index < length; index += 1) {
-    const child: StrapiNavigationItem = { documentId: `item-${index}` };
+    const child: NavigationItemMapperInput = { documentId: `item-${index}` };
     current.children = [child];
     current = child;
   }

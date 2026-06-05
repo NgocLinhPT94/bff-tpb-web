@@ -1,3 +1,4 @@
+import type { CmsPromotion } from '../../infrastructure/strapi/cms-types';
 import {
   getArray,
   getString,
@@ -9,22 +10,7 @@ import type {
   PromotionProductSummaryDto,
 } from './promotions.dto';
 
-export interface PromotionStrapiEntity {
-  documentId: string;
-  title?: string | null;
-  slug?: string | null;
-  short_description?: string | null;
-  content?: unknown;
-  start_date?: string | null;
-  end_date?: string | null;
-  cta_label?: string | null;
-  cta_link?: string | null;
-  banner?: unknown;
-  products?: Record<string, unknown>[] | null;
-  [key: string]: unknown;
-}
-
-export function mapPromotion(promotion: PromotionStrapiEntity): PromotionDto {
+export function mapPromotion(promotion: CmsPromotion): PromotionDto {
   return removeUndefined({
     documentId: promotion.documentId,
     title: promotion.title ?? undefined,
@@ -40,14 +26,12 @@ export function mapPromotion(promotion: PromotionStrapiEntity): PromotionDto {
   });
 }
 
-export function mapPromotions(
-  promotions: PromotionStrapiEntity[],
-): PromotionDto[] {
+export function mapPromotions(promotions: CmsPromotion[]): PromotionDto[] {
   return promotions.map((promotion) => mapPromotion(promotion));
 }
 
 function mapProductSummaries(
-  products: Record<string, unknown>[] | null | undefined,
+  products: CmsPromotion['products'] | null | undefined,
 ): PromotionProductSummaryDto[] {
   if (!products?.length) {
     return [];

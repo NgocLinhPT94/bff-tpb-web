@@ -200,6 +200,15 @@ The BFF maps Strapi v5's response to the BFF envelope:
    - `error.message`: string error message
    - `error.requestId`: string UUID
 
+## Mapper Input Types
+
+Mapper functions accept CMS entities that are generated from the Strapi OpenAPI spec rather than handwritten types.
+
+- Generated models live in `src/infrastructure/strapi/generated/`
+- The facade at `src/infrastructure/strapi/cms-types.ts` exports stable aliases such as `CmsArticle`, `CmsPage`, and `CmsMedia`
+- Mappers should import these facade aliases with type-only imports
+- When the CMS schema changes, regenerate types with `npm run generate:cms` and update the facade if new aliases are needed
+
 ## Media Mapping
 
 Media files are transformed from Strapi's nested structure to a flat URL-based structure:

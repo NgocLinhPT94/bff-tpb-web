@@ -1,10 +1,16 @@
+import type { CmsAuthor } from '../../infrastructure/strapi/cms-types';
 import {
   getString,
   mapMediaSummary,
   removeUndefined,
   type MediaSummaryDto,
-  type StrapiEntity,
 } from '../shared/strapi-mapper';
+
+type AuthorMapperInput =
+  | CmsAuthor
+  | (Record<string, unknown> & {
+      avatar?: unknown;
+    });
 
 export interface AuthorDto {
   documentId?: string;
@@ -13,7 +19,7 @@ export interface AuthorDto {
   avatar?: MediaSummaryDto | null;
 }
 
-export function mapAuthor(entity: StrapiEntity): AuthorDto {
+export function mapAuthor(entity: AuthorMapperInput): AuthorDto {
   const author: AuthorDto = removeUndefined({
     documentId: getString(entity.documentId),
     name: getString(entity.name),
@@ -27,6 +33,6 @@ export function mapAuthor(entity: StrapiEntity): AuthorDto {
   return author;
 }
 
-export function mapAuthors(entities: StrapiEntity[]): AuthorDto[] {
+export function mapAuthors(entities: CmsAuthor[]): AuthorDto[] {
   return entities.map(mapAuthor);
 }

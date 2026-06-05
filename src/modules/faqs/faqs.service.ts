@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { ListQueryDto } from '../../common/query';
+import type { CmsFaq } from '../../infrastructure/strapi/cms-types';
 import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
 import { mapFaq, mapFaqs, type FaqDto } from './faqs.mapper';
 import type {
   StrapiCollectionResponse,
-  StrapiEntity,
   StrapiSingleResponse,
 } from '../shared/strapi-mapper';
 
@@ -21,7 +21,7 @@ export class FaqsService {
     query: ListQueryDto,
   ): Promise<StrapiCollectionResponse<FaqDto>> {
     const response = await this.strapiClient.get<
-      StrapiCollectionResponse<StrapiEntity>
+      StrapiCollectionResponse<CmsFaq>
     >('/faqs', {
       params: {
         ...FAQS_POPULATE_PARAMS,
@@ -38,11 +38,12 @@ export class FaqsService {
   }
 
   async findOne(documentId: string): Promise<FaqDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiEntity>
-    >(`/faqs/${documentId}`, {
-      params: FAQS_POPULATE_PARAMS,
-    });
+    const response = await this.strapiClient.get<StrapiSingleResponse<CmsFaq>>(
+      `/faqs/${documentId}`,
+      {
+        params: FAQS_POPULATE_PARAMS,
+      },
+    );
 
     if (!response.data) {
       throw new NotFoundException();

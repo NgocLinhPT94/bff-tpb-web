@@ -214,6 +214,7 @@ npm run start:dev
 # The API is available at:
 # http://localhost:3000/api/v1
 # Swagger UI: http://localhost:3000/api/docs
+# Swagger UI JSON (Postman): http://localhost:3000/api/docs-json
 ```
 
 ## Configuration
@@ -275,18 +276,37 @@ npm run qa:security       # Security smoke tests
 
 ### Regenerating CMS Types
 
-When Strapi content models change:
+When Strapi content models change, regenerate the TypeScript types from the CMS OpenAPI spec:
 
 ```bash
-# Option 1: Full regeneration
+# Full regeneration (spec + types)
 npm run generate:cms
 
-# Option 2: Step by step
-cd ../cms-tpb-web && npm run generate:api
-cd ../bff-tpb-web && npm run generate:cms:types
+# Or run steps individually
+npm run generate:cms:spec   # Generate OpenAPI spec from Strapi
+npm run generate:cms:types  # Generate TypeScript types from spec
 ```
 
-This updates `src/infrastructure/strapi/generated/cms-schema.d.ts`.
+**What happens:**
+
+1. `generate:cms:spec` calls the CMS project to export its OpenAPI spec to `../cms-tpb-web/docs/api-spec.json`
+2. `generate:cms:types` runs `@openapitools/openapi-generator-cli` to produce TypeScript fetch models under `src/infrastructure/strapi/generated/`
+
+**Generated output:**
+
+- Location: `src/infrastructure/strapi/generated/`
+- Contents: TypeScript interfaces and runtime support files derived from the CMS OpenAPI spec
+
+**Facade:**
+
+Import CMS types through the facade at `src/infrastructure/strapi/cms-types.ts` instead of deep-importing generated files directly. The facade exports stable aliases such as `CmsArticle`, `CmsPage`, and `CmsMedia` that map to the underlying generated models.
+
+**Guardrails:**
+
+- Do not edit generated files by hand. They are overwritten on every regeneration.
+- Do not use the generated runtime client or fetch helpers in production code. The BFF uses its own Strapi HTTP client.
+- Do not import raw generated model files in domain modules. Always go through the facade.
+- Use type-only imports (`import type { ... }`) when referencing generated shapes.
 
 ## Testing
 
@@ -357,7 +377,7 @@ ArticlesMapper             // (static functions, no class)
 
 // Interfaces
 ArticleDto                 // PascalCase + Dto suffix
-ArticleStrapiEntity        // PascalCase + StrapiEntity suffix
+CmsArticle                 // PascalCase + Cms prefix (from generated CMS aliases)
 
 // Functions
 mapArticle()               // camelCase
@@ -620,11 +640,13 @@ npm run build
 **Error**: `Cannot find ../cms-tpb-web/docs/api-spec.json`
 
 ```bash
-cd ../cms-tpb-web
-npm run generate:api
-cd ../bff-tpb-web
-npm run generate:cms:types
+npm run generate:cms:spec   # Generate the spec first
+npm run generate:cms:types  # Then generate types from it
 ```
+
+**Error**: `openapi-generator-cli: command not found`
+
+The generator is installed as a devDependency. Use `npx openapi-generator-cli` or ensure you are running the npm script which resolves the local binary automatically.
 
 ### Port Conflicts
 

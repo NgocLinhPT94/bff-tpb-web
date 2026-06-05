@@ -1,30 +1,24 @@
+import type { CmsGlobal, CmsSeo } from '../../infrastructure/strapi/cms-types';
 import {
   mapMedia,
   removeUndefined,
   sanitizePublicValue,
   type MediaSummaryDto,
-  type StrapiMediaInput,
 } from '../shared/strapi-mapper';
 
-export interface StrapiGlobal {
-  documentId: string;
-  siteName: string;
-  siteDescription: string;
-  hotline?: string | null;
-  email?: string | null;
-  address?: string | null;
-  analytics_script?: unknown[] | null;
-  favicon?: StrapiMediaInput | null;
-  logo?: StrapiMediaInput | null;
-  defaultSeo?: StrapiSeo | null;
-}
+type GlobalMapperInput = Omit<
+  CmsGlobal,
+  'analytics_script' | 'defaultSeo' | 'favicon' | 'logo'
+> & {
+  analytics_script?: CmsGlobal['analytics_script'] | null;
+  defaultSeo?: SeoMapperInput | null;
+  favicon?: CmsGlobal['favicon'] | null;
+  logo?: CmsGlobal['logo'] | null;
+};
 
-export interface StrapiSeo {
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-  shareImage?: StrapiMediaInput | null;
-  [key: string]: unknown;
-}
+type SeoMapperInput = Omit<CmsSeo, 'shareImage'> & {
+  shareImage?: CmsSeo['shareImage'] | null;
+};
 
 export interface SeoDto {
   metaTitle?: string;
@@ -45,11 +39,11 @@ export interface GlobalDto {
   defaultSeo?: SeoDto;
 }
 
-export function mapGlobal(global: StrapiGlobal): GlobalDto {
+export function mapGlobal(global: GlobalMapperInput): GlobalDto {
   return removeUndefined({
     documentId: global.documentId,
-    siteName: global.siteName,
-    siteDescription: global.siteDescription,
+    siteName: global.siteName ?? '',
+    siteDescription: global.siteDescription ?? '',
     hotline: global.hotline ?? undefined,
     email: global.email ?? undefined,
     address: global.address ?? undefined,
@@ -62,7 +56,7 @@ export function mapGlobal(global: StrapiGlobal): GlobalDto {
   });
 }
 
-function mapSeo(seo: StrapiSeo | null | undefined): SeoDto | undefined {
+function mapSeo(seo: SeoMapperInput | null | undefined): SeoDto | undefined {
   if (!seo) {
     return undefined;
   }

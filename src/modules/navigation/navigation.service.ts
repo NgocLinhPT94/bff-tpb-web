@@ -12,7 +12,7 @@ import type {
 import {
   mapNavigation,
   type NavigationDto,
-  type StrapiNavigation,
+  type NavigationMapperInput,
 } from './navigation.mapper';
 
 const NAVIGATION_POPULATE = [
@@ -29,7 +29,7 @@ export class NavigationService {
     query: ListQueryDto,
   ): Promise<StrapiCollectionResponse<NavigationDto>> {
     const response = await this.strapiClient.get<
-      StrapiCollectionResponse<StrapiNavigation>
+      StrapiCollectionResponse<NavigationMapperInput>
     >('/navigations', {
       params: buildStrapiListParams(query, NAVIGATION_POPULATE),
     });
@@ -42,7 +42,7 @@ export class NavigationService {
 
   async findOne(documentId: string): Promise<NavigationDto> {
     const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiNavigation>
+      StrapiSingleResponse<NavigationMapperInput>
     >(`/navigations/${documentId}`, {
       params: buildPopulateParams(NAVIGATION_POPULATE),
     });

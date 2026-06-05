@@ -1,3 +1,4 @@
+import type { CmsFaq } from '../../infrastructure/strapi/cms-types';
 import { mapCategory, type CategoryDto } from '../categories/categories.mapper';
 import {
   getArray,
@@ -9,7 +10,6 @@ import {
   removeUndefined,
   stripInternalFields,
   type MediaSummaryDto,
-  type StrapiEntity,
 } from '../shared/strapi-mapper';
 
 export interface ProductSummaryDto {
@@ -30,7 +30,7 @@ export interface FaqDto {
   products?: ProductSummaryDto[];
 }
 
-export function mapFaq(entity: StrapiEntity): FaqDto {
+export function mapFaq(entity: CmsFaq): FaqDto {
   const faq: FaqDto = removeUndefined({
     documentId: getString(entity.documentId),
     question: getString(entity.question),
@@ -49,11 +49,13 @@ export function mapFaq(entity: StrapiEntity): FaqDto {
   return faq;
 }
 
-export function mapFaqs(entities: StrapiEntity[]): FaqDto[] {
+export function mapFaqs(entities: CmsFaq[]): FaqDto[] {
   return entities.map(mapFaq);
 }
 
-export function mapProductSummary(entity: StrapiEntity): ProductSummaryDto {
+export function mapProductSummary(
+  entity: Record<string, unknown>,
+): ProductSummaryDto {
   const product: ProductSummaryDto = removeUndefined({
     documentId: getString(entity.documentId),
     name: getString(entity.name),

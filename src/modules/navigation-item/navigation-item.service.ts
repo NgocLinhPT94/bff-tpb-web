@@ -11,8 +11,8 @@ import type {
 } from '../shared/strapi-mapper';
 import {
   mapNavigationItem,
+  type NavigationItemMapperInput,
   type NavigationItemDto,
-  type StrapiNavigationItem,
 } from './navigation-item.mapper';
 
 const NAVIGATION_ITEM_POPULATE = [
@@ -34,7 +34,7 @@ export class NavigationItemService {
     query: ListQueryDto,
   ): Promise<StrapiCollectionResponse<NavigationItemDto>> {
     const response = await this.strapiClient.get<
-      StrapiCollectionResponse<StrapiNavigationItem>
+      StrapiCollectionResponse<NavigationItemMapperInput>
     >('/navigation-items', {
       params: buildStrapiListParams(query, NAVIGATION_ITEM_POPULATE),
     });
@@ -47,7 +47,7 @@ export class NavigationItemService {
 
   async findOne(documentId: string): Promise<NavigationItemDto> {
     const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiNavigationItem>
+      StrapiSingleResponse<NavigationItemMapperInput>
     >(`/navigation-items/${documentId}`, {
       params: buildPopulateParams(NAVIGATION_ITEM_POPULATE),
     });

@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { PaginationMeta } from '../../common/dto';
 import type { ListQueryDto } from '../../common/query';
+import type { CmsCategory } from '../../infrastructure/strapi/cms-types';
 import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
 import {
   mapCategories,
@@ -8,7 +9,6 @@ import {
   type CategoryDto,
 } from './categories.mapper';
 import type {
-  StrapiEntity,
   StrapiListResponse,
   StrapiSingleResponse,
 } from '../shared/strapi-mapper';
@@ -24,7 +24,7 @@ export class CategoriesService {
 
   async findAll(query: ListQueryDto): Promise<CategoryListResult> {
     const response = await this.strapiClient.get<
-      StrapiListResponse<StrapiEntity>
+      StrapiListResponse<CmsCategory>
     >('/categories', {
       params: {
         'pagination[page]': query.page,
@@ -41,7 +41,7 @@ export class CategoriesService {
 
   async findOne(documentId: string): Promise<CategoryDto> {
     const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiEntity>
+      StrapiSingleResponse<CmsCategory>
     >(`/categories/${documentId}`);
 
     if (!response.data) {

@@ -1,8 +1,12 @@
-import {
-  getString,
-  removeUndefined,
-  type StrapiEntity,
-} from '../shared/strapi-mapper';
+import type { CmsCategory } from '../../infrastructure/strapi/cms-types';
+import { getString, removeUndefined } from '../shared/strapi-mapper';
+
+type CategoryMapperInput =
+  | CmsCategory
+  | (Record<string, unknown> & {
+      articles?: unknown;
+      faqs?: unknown;
+    });
 
 export interface CategoryDto {
   documentId?: string;
@@ -11,7 +15,7 @@ export interface CategoryDto {
   description?: string;
 }
 
-export function mapCategory(entity: StrapiEntity): CategoryDto {
+export function mapCategory(entity: CategoryMapperInput): CategoryDto {
   return removeUndefined({
     documentId: getString(entity.documentId),
     name: getString(entity.name),
@@ -20,6 +24,6 @@ export function mapCategory(entity: StrapiEntity): CategoryDto {
   });
 }
 
-export function mapCategories(entities: StrapiEntity[]): CategoryDto[] {
+export function mapCategories(entities: CmsCategory[]): CategoryDto[] {
   return entities.map(mapCategory);
 }

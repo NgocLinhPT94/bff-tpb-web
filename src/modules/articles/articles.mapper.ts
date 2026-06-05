@@ -1,3 +1,4 @@
+import type { CmsArticle } from '../../infrastructure/strapi/cms-types';
 import { mapAuthor, type AuthorDto } from '../authors/authors.mapper';
 import { mapCategory, type CategoryDto } from '../categories/categories.mapper';
 import {
@@ -8,7 +9,6 @@ import {
   removeUndefined,
   stripInternalFields,
   type MediaSummaryDto,
-  type StrapiEntity,
 } from '../shared/strapi-mapper';
 
 export interface ArticleDto {
@@ -25,7 +25,7 @@ export interface ArticleDto {
   category?: CategoryDto | null;
 }
 
-export function mapArticle(entity: StrapiEntity): ArticleDto {
+export function mapArticle(entity: CmsArticle): ArticleDto {
   const article: ArticleDto = removeUndefined({
     documentId: getString(entity.documentId),
     title: getString(entity.title),
@@ -52,7 +52,7 @@ export function mapArticle(entity: StrapiEntity): ArticleDto {
   return article;
 }
 
-export function mapArticles(entities: StrapiEntity[]): ArticleDto[] {
+export function mapArticles(entities: CmsArticle[]): ArticleDto[] {
   return entities.map(mapArticle);
 }
 

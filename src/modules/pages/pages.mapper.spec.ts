@@ -1,20 +1,70 @@
+import type { CmsPage } from '../../infrastructure/strapi/cms-types';
 import { mapPage } from './pages.mapper';
 
 describe('mapPage', () => {
   it('maps null dynamic-zone relation to an empty array', () => {
-    expect(
-      mapPage({ documentId: 'page-doc', title: 'Home', sections: null }),
-    ).toEqual({
+    const input = {
+      documentId: 'page-doc',
+      id: 1,
+      title: 'Home',
+      publishedAt: '2026-06-05T00:00:00.000Z',
+      sections: null,
+    };
+
+    expect(mapPage(input)).toEqual({
       documentId: 'page-doc',
       title: 'Home',
       sections: [],
     });
   });
 
-  it('maps empty dynamic-zone arrays', () => {
-    expect(mapPage({ documentId: 'page-doc', sections: [] })).toEqual({
+  it('maps empty dynamic-zone arrays and omits missing optional text', () => {
+    const input = {
+      documentId: 'page-doc',
+      id: 1,
+      publishedAt: '2026-06-05T00:00:00.000Z',
+      sections: [],
+    } satisfies CmsPage;
+
+    expect(mapPage(input)).toEqual({
       documentId: 'page-doc',
       sections: [],
+    });
+  });
+
+  it('preserves unknown component fallback names and sanitizes nested metadata', () => {
+    expect(
+      mapPage({
+        documentId: 'page-doc',
+        id: 1,
+        publishedAt: '2026-06-05T00:00:00.000Z',
+        sections: [
+          {
+            id: 7,
+            __component: 'blocks.unregistered-experiment',
+            heading: 'Fallback section',
+            media: {
+              id: 8,
+              url: '/fallback.jpg',
+              alternativeText: 'Fallback',
+              provider: 'local',
+              related: [],
+            },
+          },
+        ],
+      } satisfies CmsPage),
+    ).toEqual({
+      documentId: 'page-doc',
+      sections: [
+        {
+          __component: 'blocks.unregistered-experiment',
+          heading: 'Fallback section',
+          media: {
+            url: '/fallback.jpg',
+            alternativeText: 'Fallback',
+          },
+        },
+      ],
     });
   });
 
@@ -22,6 +72,8 @@ describe('mapPage', () => {
     expect(
       mapPage({
         documentId: 'page-doc',
+        id: 1,
+        publishedAt: '2026-06-05T00:00:00.000Z',
         slug: 'home',
         sections: [
           {
@@ -45,7 +97,7 @@ describe('mapPage', () => {
             items: [],
           },
         ],
-      }),
+      } satisfies CmsPage),
     ).toEqual({
       documentId: 'page-doc',
       slug: 'home',
@@ -73,8 +125,10 @@ describe('mapPage', () => {
     expect(
       mapPage({
         documentId: 'page-doc',
+        id: 1,
+        publishedAt: '2026-06-05T00:00:00.000Z',
         sections: [{ __component: 'blocks.product-highlight', title: 'Loans' }],
-      }),
+      } satisfies CmsPage),
     ).toEqual({
       documentId: 'page-doc',
       sections: [{ __component: 'blocks.product-highlight', title: 'Loans' }],

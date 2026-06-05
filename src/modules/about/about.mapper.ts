@@ -1,10 +1,9 @@
+import type { CmsAbout } from '../../infrastructure/strapi/cms-types';
 import { removeUndefined, sanitizePublicValue } from '../shared/strapi-mapper';
 
-export interface StrapiAbout {
-  documentId: string;
-  title?: string | null;
-  blocks?: unknown[] | null;
-}
+type AboutMapperInput = Omit<CmsAbout, 'blocks'> & {
+  blocks?: CmsAbout['blocks'] | null;
+};
 
 export interface AboutDto {
   documentId: string;
@@ -12,7 +11,7 @@ export interface AboutDto {
   blocks: unknown[];
 }
 
-export function mapAbout(about: StrapiAbout): AboutDto {
+export function mapAbout(about: AboutMapperInput): AboutDto {
   return removeUndefined({
     documentId: about.documentId,
     title: about.title ?? undefined,

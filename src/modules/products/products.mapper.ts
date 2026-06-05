@@ -1,3 +1,4 @@
+import type { CmsProduct } from '../../infrastructure/strapi/cms-types';
 import {
   getString,
   mapMediaSummary,
@@ -11,23 +12,9 @@ import {
   type ProductPromotionSummaryDto,
 } from './products.dto';
 
-export interface ProductStrapiEntity {
-  documentId: string;
-  name?: string | null;
-  slug?: string | null;
-  product_type?: string | null;
-  short_description?: string | null;
-  thumbnail?: unknown;
-  main_banner?: unknown;
-  documents?: unknown;
-  faqs?: Record<string, unknown>[] | null;
-  promotions?: Record<string, unknown>[] | null;
-  [key: string]: unknown;
-}
-
 const PRODUCT_TYPES = new Set<string>(Object.values(ProductType));
 
-export function mapProduct(product: ProductStrapiEntity): ProductDto {
+export function mapProduct(product: CmsProduct): ProductDto {
   return removeUndefined({
     documentId: product.documentId,
     name: product.name ?? undefined,
@@ -42,7 +29,7 @@ export function mapProduct(product: ProductStrapiEntity): ProductDto {
   });
 }
 
-export function mapProducts(products: ProductStrapiEntity[]): ProductDto[] {
+export function mapProducts(products: CmsProduct[]): ProductDto[] {
   return products.map((product) => mapProduct(product));
 }
 
@@ -57,7 +44,7 @@ function mapProductType(
 }
 
 function mapFaqSummaries(
-  faqs: Record<string, unknown>[] | null | undefined,
+  faqs: CmsProduct['faqs'] | null | undefined,
 ): ProductFaqSummaryDto[] {
   if (!faqs?.length) {
     return [];
@@ -78,7 +65,7 @@ function mapFaqSummaries(
 }
 
 function mapPromotionSummaries(
-  promotions: Record<string, unknown>[] | null | undefined,
+  promotions: CmsProduct['promotions'] | null | undefined,
 ): ProductPromotionSummaryDto[] {
   if (!promotions?.length) {
     return [];

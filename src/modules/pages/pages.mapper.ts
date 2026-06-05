@@ -1,15 +1,9 @@
+import type { CmsPage } from '../../infrastructure/strapi/cms-types';
 import { removeUndefined, sanitizePublicValue } from '../shared/strapi-mapper';
 
-export interface StrapiPage {
-  documentId: string;
-  title?: string | null;
-  description?: string | null;
-  slug?: string | null;
-  template?: string | null;
-  workflowState?: string | null;
-  publishDate?: string | null;
-  sections?: unknown[] | null;
-}
+type PageMapperInput = Omit<CmsPage, 'sections'> & {
+  sections?: CmsPage['sections'] | null;
+};
 
 export interface PageDto {
   documentId: string;
@@ -22,7 +16,7 @@ export interface PageDto {
   sections: unknown[];
 }
 
-export function mapPage(page: StrapiPage): PageDto {
+export function mapPage(page: PageMapperInput): PageDto {
   return removeUndefined({
     documentId: page.documentId,
     title: page.title ?? undefined,

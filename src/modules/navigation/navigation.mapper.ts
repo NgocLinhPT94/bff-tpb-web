@@ -4,42 +4,32 @@ import {
   type MediaSummaryDto,
   type StrapiMediaInput,
 } from '../shared/strapi-mapper';
+import type {
+  CmsNavigation,
+  CmsNavigationItem,
+} from '../../infrastructure/strapi/cms-types';
 
-export interface StrapiNavigation {
-  documentId: string;
-  name?: string | null;
-  type_menu?: string | null;
-  on_off?: boolean | null;
-  navigation_items?: StrapiNavigationItemSummary[] | null;
-  iconshare?: StrapiLink[] | null;
-  ButtonShare?: StrapiButton[] | null;
-}
+type NavigationItemSummaryInput = Pick<CmsNavigationItem, 'documentId'> &
+  Partial<
+    Pick<CmsNavigationItem, 'id' | 'name' | 'title' | 'url' | 'order'>
+  > & {
+    icon?: StrapiMediaInput | null;
+  };
 
-export interface StrapiNavigationItemSummary {
-  documentId: string;
-  name?: string | null;
-  title?: string | null;
-  url?: string | null;
-  order?: number | null;
-  icon?: StrapiMediaInput | null;
-  [key: string]: unknown;
-}
+type NavigationLinkInput = Partial<
+  Omit<NonNullable<CmsNavigation['iconshare']>[number], 'icon'>
+> & { icon?: StrapiMediaInput | null };
 
-export interface StrapiLink {
-  label?: string | null;
-  url?: string | null;
-  external?: boolean | null;
-  order?: number | null;
-  icon?: StrapiMediaInput | null;
-  [key: string]: unknown;
-}
+type NavigationButtonInput = Partial<
+  NonNullable<CmsNavigation['ButtonShare']>[number]
+>;
 
-export interface StrapiButton {
-  label?: string | null;
-  url?: string | null;
-  style?: string | null;
-  [key: string]: unknown;
-}
+export type NavigationMapperInput = Pick<CmsNavigation, 'documentId'> &
+  Partial<Pick<CmsNavigation, 'name' | 'type_menu' | 'on_off'>> & {
+    navigation_items?: NavigationItemSummaryInput[] | null;
+    iconshare?: NavigationLinkInput[] | null;
+    ButtonShare?: NavigationButtonInput[] | null;
+  };
 
 export interface NavigationItemSummaryDto {
   documentId: string;
@@ -74,7 +64,9 @@ export interface NavigationDto {
   ButtonShare: ButtonDto[];
 }
 
-export function mapNavigation(navigation: StrapiNavigation): NavigationDto {
+export function mapNavigation(
+  navigation: NavigationMapperInput,
+): NavigationDto {
   return removeUndefined({
     documentId: navigation.documentId,
     name: navigation.name ?? undefined,
@@ -87,7 +79,7 @@ export function mapNavigation(navigation: StrapiNavigation): NavigationDto {
 }
 
 function mapNavigationItemSummaries(
-  items: StrapiNavigationItemSummary[] | null | undefined,
+  items: NavigationItemSummaryInput[] | null | undefined,
 ): NavigationItemSummaryDto[] {
   if (!items?.length) {
     return [];
@@ -105,7 +97,7 @@ function mapNavigationItemSummaries(
   );
 }
 
-function mapLinks(links: StrapiLink[] | null | undefined): LinkDto[] {
+function mapLinks(links: NavigationLinkInput[] | null | undefined): LinkDto[] {
   if (!links?.length) {
     return [];
   }
@@ -121,7 +113,9 @@ function mapLinks(links: StrapiLink[] | null | undefined): LinkDto[] {
   );
 }
 
-function mapButtons(buttons: StrapiButton[] | null | undefined): ButtonDto[] {
+function mapButtons(
+  buttons: NavigationButtonInput[] | null | undefined,
+): ButtonDto[] {
   if (!buttons?.length) {
     return [];
   }

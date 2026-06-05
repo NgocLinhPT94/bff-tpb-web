@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { ListQueryDto } from '../../common/query';
+import type { CmsPage } from '../../infrastructure/strapi/cms-types';
 import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
 import { buildStrapiListParams } from '../shared/list-query';
 import type {
   StrapiCollectionResponse,
   StrapiSingleResponse,
 } from '../shared/strapi-mapper';
-import { mapPage, type PageDto, type StrapiPage } from './pages.mapper';
+import { mapPage, type PageDto } from './pages.mapper';
 
 const PAGES_POPULATE = 'sections';
 
@@ -18,7 +19,7 @@ export class PagesService {
     query: ListQueryDto,
   ): Promise<StrapiCollectionResponse<PageDto>> {
     const response = await this.strapiClient.get<
-      StrapiCollectionResponse<StrapiPage>
+      StrapiCollectionResponse<CmsPage>
     >('/pages', {
       params: buildStrapiListParams(query, PAGES_POPULATE),
     });
@@ -30,11 +31,12 @@ export class PagesService {
   }
 
   async findOne(documentId: string): Promise<PageDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiPage>
-    >(`/pages/${documentId}`, {
-      params: { populate: PAGES_POPULATE },
-    });
+    const response = await this.strapiClient.get<StrapiSingleResponse<CmsPage>>(
+      `/pages/${documentId}`,
+      {
+        params: { populate: PAGES_POPULATE },
+      },
+    );
 
     if (!response.data) {
       throw new NotFoundException();

@@ -1,16 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ListQueryDto } from '../../common/query';
+import type { CmsPromotion } from '../../infrastructure/strapi/cms-types';
 import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
 import type {
   StrapiListResponse,
   StrapiSingleResponse,
 } from '../shared/strapi-mapper';
 import type { PromotionDto } from './promotions.dto';
-import {
-  mapPromotion,
-  mapPromotions,
-  type PromotionStrapiEntity,
-} from './promotions.mapper';
+import { mapPromotion, mapPromotions } from './promotions.mapper';
 
 const PROMOTION_POPULATE_PARAMS = {
   'populate[0]': 'products',
@@ -25,7 +22,7 @@ export class PromotionsService {
     query: ListQueryDto,
   ): Promise<StrapiListResponse<PromotionDto>> {
     const response = await this.strapiClient.get<
-      StrapiListResponse<PromotionStrapiEntity>
+      StrapiListResponse<CmsPromotion>
     >('/promotions', {
       params: {
         ...PROMOTION_POPULATE_PARAMS,
@@ -43,7 +40,7 @@ export class PromotionsService {
 
   async findOne(documentId: string): Promise<PromotionDto> {
     const response = await this.strapiClient.get<
-      StrapiSingleResponse<PromotionStrapiEntity>
+      StrapiSingleResponse<CmsPromotion>
     >(`/promotions/${documentId}`, {
       params: PROMOTION_POPULATE_PARAMS,
     });
