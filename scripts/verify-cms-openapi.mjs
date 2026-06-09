@@ -1,6 +1,9 @@
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-const specPath = new URL('../../cms-tpb-web/docs/api-spec.json', import.meta.url);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const specPath = process.argv[2] || path.resolve(__dirname, '../docs/cms-api-spec.json');
 
 const requiredGetPaths = [
   '/about',
@@ -13,7 +16,9 @@ const requiredGetPaths = [
   '/navigation-items',
   '/pages',
   '/products',
+  '/product-categories',
   '/promotions',
+  '/customer-segments',
 ];
 
 const forbiddenPathPatterns = [
@@ -29,37 +34,38 @@ const forbiddenPathPatterns = [
   /^\/connect(?:\/|$)/,
 ];
 
+let exitCode = 0;
 const fail = (message) => {
-  console.error(message);
-  process.exitCode = 1;
+  console.error(`FAIL: ${message}`);
+  exitCode = 1;
 };
 
-const spec = JSON.parse(await readFile(specPath, 'utf8'));
-const paths = spec.paths ?? {};
-const pathNames = Object.keys(paths);
-const bffRelevantPathPrefixes = requiredGetPaths.map((path) => `${path}/`);
-const bffRelevantPaths = pathNames.filter(
-  (path) => requiredGetPaths.includes(path) || bffRelevantPathPrefixes.some((prefix) => path.startsWith(prefix)),
-);
+try {
+  const spec = JSON.parse(await readFile(specPath, 'utf8'));
+  const paths = spec.paths ?? {};
+  const pathNames = Object.keys(paths);
 
-for (const path of requiredGetPaths) {
-  if (!paths[path]?.get) {
-    fail(`Missing required CMS GET path: ${path}`);
+  for (const requiredPath of requiredGetPaths) {
+    if (!paths[requiredPath]?.get) {
+      fail(`Missing required CMS GET path: ${requiredPath}`);
+    }
   }
+
+  const forbiddenPaths = pathNames.filter((p) =>
+    forbiddenPathPatterns.some((pattern) => pattern.test(p)),
+  );
+
+  if (forbiddenPaths.length > 0) {
+    fail(`Forbidden CMS OpenAPI paths found: ${forbiddenPaths.join(', ')}`);
+  }
+
+  if (exitCode === 0) {
+    console.log(
+      `CMS OpenAPI verification passed: ${requiredGetPaths.length} required GET paths present, no forbidden paths found.`,
+    );
+  }
+} catch (error) {
+  fail(`Could not read spec file at ${specPath}: ${error.message}`);
 }
 
-const forbiddenPaths = bffRelevantPaths.filter((path) =>
-  forbiddenPathPatterns.some((pattern) => pattern.test(path)),
-);
-
-if (forbiddenPaths.length > 0) {
-  fail(`Forbidden CMS OpenAPI paths found: ${forbiddenPaths.join(', ')}`);
-}
-
-if (process.exitCode) {
-  process.exit();
-}
-
-console.log(
-  `CMS OpenAPI verification passed: ${requiredGetPaths.length} required GET paths present and no forbidden plugin/admin/auth/upload paths found.`,
-);
+process.exit(exitCode);

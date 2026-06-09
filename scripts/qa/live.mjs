@@ -7,12 +7,11 @@ import {
   Evidence,
   EVIDENCE_DIR,
   runCheck,
-  withServices,
 } from './lib.mjs';
 
 const evidence = new Evidence(
-  join(EVIDENCE_DIR, 'task-11-live-smoke.txt'),
-  'Task 11 live BFF smoke checks',
+  join(EVIDENCE_DIR, 'live-smoke.txt'),
+  'BFF live smoke checks',
 );
 
 const singletonRoutes = [
@@ -30,23 +29,22 @@ const collectionRoutes = [
   { name: 'pages', path: '/api/v1/pages' },
   { name: 'products', path: '/api/v1/products' },
   { name: 'promotions', path: '/api/v1/promotions' },
+  { name: 'customer-segments', path: '/api/v1/customer-segments' },
+  { name: 'product-categories', path: '/api/v1/product-categories' },
 ];
 
 const missingDocumentId = 'zzzzzzzzzzzzzzzzzzzzzzzz';
 
 async function checkSingleton(route) {
   const response = await curlJson(route.path);
-
   if (response.status === 200) {
     assertSuccessEnvelope(response.json, { objectData: true });
     return `${route.path} returned success envelope`;
   }
-
   if (response.status === 404) {
     assertErrorEnvelope(response.json, 'NOT_FOUND');
     return `${route.path} returned documented 404 for missing singleton content`;
   }
-
   throw new Error(`${route.path} returned ${response.status}`);
 }
 
@@ -55,11 +53,7 @@ async function checkCollection(route) {
   if (listResponse.status !== 200) {
     throw new Error(`${route.path} list returned ${listResponse.status}`);
   }
-
-  assertSuccessEnvelope(listResponse.json, {
-    arrayData: true,
-    pagination: true,
-  });
+  assertSuccessEnvelope(listResponse.json, { arrayData: true, pagination: true });
 
   const firstItem = listResponse.json.data[0];
   const documentId = firstItem?.documentId;
@@ -72,37 +66,25 @@ async function checkCollection(route) {
   const detailResponse = await curlJson(detailPath);
 
   if (documentId) {
-    if (detailResponse.status !== 200) {
-      throw new Error(`${detailPath} returned ${detailResponse.status}`);
-    }
+    if (detailResponse.status !== 200) throw new Error(`${detailPath} returned ${detailResponse.status}`);
     assertSuccessEnvelope(detailResponse.json, { objectData: true });
-    return `${route.path} list envelope valid; ${detailPath} returned detail envelope`;
+    return `${route.path} list valid; ${detailPath} detail valid`;
   }
 
-  if (detailResponse.status !== 404) {
-    throw new Error(
-      `${detailPath} should return 404 for empty collection probe, got ${detailResponse.status}`,
-    );
-  }
-
+  if (detailResponse.status !== 404) throw new Error(`${detailPath} should return 404, got ${detailResponse.status}`);
   assertErrorEnvelope(detailResponse.json, 'NOT_FOUND');
-  return `${route.path} empty list envelope valid; ${detailPath} returned documented 404`;
+  return `${route.path} empty list valid; ${detailPath} returned 404`;
 }
 
 try {
-  await withServices(evidence, async () => {
-    evidence.info(`Running smoke checks against ${BFF_BASE_URL}`);
+  evidence.info(`Running smoke checks against ${BFF_BASE_URL}`);
 
-    for (const route of singletonRoutes) {
-      await runCheck(evidence, `GET ${route.path}`, () => checkSingleton(route));
-    }
-
-    for (const route of collectionRoutes) {
-      await runCheck(evidence, `GET ${route.path} and ${route.path}/:documentId`, () =>
-        checkCollection(route),
-      );
-    }
-  });
+  for (const route of singletonRoutes) {
+    await runCheck(evidence, `GET ${route.path}`, () => checkSingleton(route));
+  }
+  for (const route of collectionRoutes) {
+    await runCheck(evidence, `GET ${route.path}`, () => checkCollection(route));
+  }
 } catch (error) {
   evidence.fail('live smoke runner', error instanceof Error ? error.message : String(error));
 } finally {
