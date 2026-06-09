@@ -110,3 +110,42 @@
 - `src/common/swagger/common.swagger.dto.ts`
 - `src/modules/*/ *.swagger.dto.ts` (11 files)
 - `README.md`
+
+## 2026-06-05 - CMS OpenAPI Generator type workflow
+- Replaced openapi-typescript with @openapitools/openapi-generator-cli for BFF CMS type generation.
+- typescript-fetch model files import ../runtime by default; generating supportingFiles=runtime.ts keeps models compile-safe while APIs/docs/tests remain skipped.
+- withoutRuntimeChecks=true with this spec/generator combination emitted no model .ts files, so do not use it for this workflow.
+
+## 2026-06-05 - CMS type facade
+- `src/infrastructure/strapi/cms-types.ts` is the stable, type-only import boundary for generated Strapi model types.
+- Feature modules should import aliases such as `CmsArticle`, `CmsGlobal`, and `CmsProduct` from the facade instead of importing from `src/infrastructure/strapi/generated` directly.
+- `CmsMedia` currently maps to `ArticleGetArticles200ResponseDataInnerCover`; `CmsSeo` maps to the generated SEO component type; generated dynamic-zone fields are still exposed as `Array<any>` via `CmsBlocks`.
+
+## 2026-06-05 - Singleton/simple mapper CMS aliases
+- About, global, page, author, and category mappers now source their entity types from `src/infrastructure/strapi/cms-types.ts` aliases instead of local `Strapi*` interfaces.
+- Generated CMS aliases omit null relation values after conversion, but mapper specs still cover raw Strapi null fallback behavior; mapper input helper types can widen only those relation fields while remaining facade-derived.
+- Generated media objects have `url: string | null` and no record index signature, so the shared media mapper accepts nullable URLs without requiring `Record<string, unknown>` compatibility.
+
+- Navigation mapper refactor: use facade-derived helper aliases (`Pick`/`Partial` over `CmsNavigation` and `CmsNavigationItem`) for partial Strapi fixtures and recursive relations; keep media typed as shared `StrapiMediaInput` because generated media requires full asset metadata while mappers only need summary fields.
+
+## 2026-06-05 - Mapper spec generated-type compatibility
+- Mapper specs can use `satisfies CmsX` directly when fixtures include generated-required fields such as `id`, `publishedAt`, and required arrays like `CmsGlobal.analytics_script` or `CmsPromotion.content`.
+- Nullable raw Strapi fallback cases should remain mapper-input focused when the generated facade omits `null` after conversion; keep these as behavior tests rather than generated-shape tests.
+- Promotion rich-text content should be sanitized with `stripInternalFields`, matching article/FAQ mapper behavior for Strapi rich-text blocks.
+
+## 2026-06-05 Scope Fidelity Check - OpenAPI Generator CMS Types
+
+- Result: REJECT. Controllers, Swagger DTO files, and common DTO files were unchanged by diff; service files changed type imports/generics only. Build passed with `npm run build`.
+- Scope violations found: `src/modules/global/global.mapper.ts` changes `GlobalDto.siteName` and `GlobalDto.siteDescription` from `string` to `string | null`; `src/modules/promotions/promotions.mapper.ts` changes runtime content mapping by applying `stripInternalFields` to promotion content.
+
+## F4: Scope Fidelity Check (2026-06-06)
+
+### Findings
+1. **GlobalDto.siteName/siteDescription**: DTO type remains `string` (not `string | null`). Mapper now uses `?? ''` defensively, which improves runtime contract fidelity.
+2. **Promotions mapper content**: Uses `getArray(promotion.content)` without `stripInternalFields` — matches original behavior.
+3. **DTO interfaces**: No `.dto.ts` or `.swagger.dto.ts` files were modified. All API-facing DTO contracts are unchanged.
+4. **StrapiMediaInput**: Internal input type changed (no longer extends `StrapiEntity`, `url?: string | null`), but output `MediaSummaryDto` is unchanged — no API contract break.
+5. **Navigation-item mapper**: Replaced shared `mapRelationSummary` with local `mapRelationSummaryInput`. DTO contract unchanged, but implementation differs slightly (no `documentId` string guard, uses `??` instead of `getString`). This is an intentional refactor, not an accidental contract change.
+
+### Verdict: APPROVE
+No DTO contracts were broken. The two targeted fixes (GlobalDto string types, promotions content without stripInternalFields) are correctly applied.
