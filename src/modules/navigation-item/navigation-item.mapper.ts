@@ -1,46 +1,25 @@
+import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
   mapMedia,
   mapRelationSummary,
+  mapRelationSummaries,
   removeUndefined,
-  type MediaSummaryDto,
-  type RelationSummaryDto,
-  type StrapiMediaInput,
-} from '../shared/strapi-mapper';
+} from '../../common/utils/cms-mapper';
+import type { NavigationItemDto } from './navigation-item.dto';
+
+export type CmsNavigationItem =
+  operations['navigation-item/get/navigation_items_by_id']['responses'][200]['content']['application/json']['data'];
 
 export const NAVIGATION_ITEM_MAX_CHILD_DEPTH = 5;
 
-export interface StrapiNavigationItem {
-  documentId: string;
-  name?: string | null;
-  title?: string | null;
-  url?: string | null;
-  order?: number | null;
-  icon?: StrapiMediaInput | null;
-  navigation?: Record<string, unknown> | null;
-  parent?: Record<string, unknown> | null;
-  children?: StrapiNavigationItem[] | null;
-}
-
-export interface NavigationItemDto {
-  documentId: string;
-  name?: string;
-  title?: string;
-  url?: string;
-  order?: number;
-  icon?: MediaSummaryDto;
-  navigation?: RelationSummaryDto;
-  parent?: RelationSummaryDto;
-  children: NavigationItemDto[];
-}
-
 export function mapNavigationItem(
-  item: StrapiNavigationItem,
+  item: CmsNavigationItem,
 ): NavigationItemDto {
   return mapNavigationItemAtDepth(item, 0, new Set<string>());
 }
 
 function mapNavigationItemAtDepth(
-  item: StrapiNavigationItem,
+  item: CmsNavigationItem,
   depth: number,
   ancestors: Set<string>,
 ): NavigationItemDto {
@@ -54,14 +33,14 @@ function mapNavigationItemAtDepth(
     url: item.url ?? undefined,
     order: item.order ?? undefined,
     icon: mapMedia(item.icon),
-    navigation: mapRelationSummary(item.navigation),
+    navigations: mapRelationSummaries(item.navigations),
     parent: mapRelationSummary(item.parent),
     children: mapChildren(item.children, depth, nextAncestors),
   });
 }
 
 function mapChildren(
-  children: StrapiNavigationItem[] | null | undefined,
+  children: CmsNavigationItem[] | null | undefined,
   depth: number,
   ancestors: Set<string>,
 ): NavigationItemDto[] {

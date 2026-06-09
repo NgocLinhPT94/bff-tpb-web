@@ -1,30 +1,30 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * Category DTO for Swagger documentation.
  */
-export class CategoryDto {
-  @ApiPropertyOptional({
+export class CategorySwaggerDto {
+  @ApiProperty({
     description: 'Unique document identifier',
-    example: 'category-001',
+    example: 'cat-001',
   })
-  documentId?: string;
+  documentId!: string;
 
   @ApiPropertyOptional({
     description: 'Category name',
-    example: 'Banking News',
+    example: 'Personal Finance',
   })
   name?: string;
 
   @ApiPropertyOptional({
     description: 'URL slug',
-    example: 'banking-news',
+    example: 'personal-finance',
   })
   slug?: string;
 
   @ApiPropertyOptional({
     description: 'Category description',
-    example: 'Latest news and updates from the banking industry',
+    example: 'Articles about managing personal finances and budgeting.',
   })
   description?: string;
 }

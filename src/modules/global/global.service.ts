@@ -1,18 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
-import { buildPopulateParams } from '../shared/list-query';
-import type { StrapiSingleResponse } from '../shared/strapi-mapper';
-import { mapGlobal, type GlobalDto, type StrapiGlobal } from './global.mapper';
+import { CmsClient } from '../../integrations/cms/cms.client';
+import { buildPopulateParams } from '../../common/utils/list-query';
+import type { CmsSingleResponse } from '../../common/utils/cms-mapper';
+import { mapGlobal, type CmsGlobal } from './global.mapper';
+import type { GlobalDto } from './global.dto';
 
 const GLOBAL_POPULATE = ['favicon', 'defaultSeo', 'logo'] as const;
 
 @Injectable()
 export class GlobalService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
   async findOne(): Promise<GlobalDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiGlobal>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<CmsGlobal>
     >('/global', {
       params: buildPopulateParams(GLOBAL_POPULATE),
     });

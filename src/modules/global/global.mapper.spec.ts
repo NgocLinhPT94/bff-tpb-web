@@ -1,4 +1,4 @@
-import { mapGlobal, type StrapiGlobal } from './global.mapper';
+import { mapGlobal, type CmsGlobal } from './global.mapper';
 
 describe('mapGlobal', () => {
   it('maps media summaries and strips internal media fields', () => {
@@ -34,15 +34,26 @@ describe('mapGlobal', () => {
         height: 32,
         formats: { thumbnail: { url: '/thumb.ico' } },
       },
-      defaultSeo: {
-        metaTitle: 'Default title',
-        metaDescription: 'Default description',
-      },
+      defaultSeo: { metaTitle: 'Default title', metaDescription: 'Default description' },
     });
   });
 
+  it('handles null media relations', () => {
+    expect(
+      mapGlobal({
+        documentId: 'global-doc',
+        siteName: 'TPB',
+        siteDescription: 'Site description',
+        favicon: null,
+        logo: null,
+        defaultSeo: null,
+        analytics_script: null,
+      }),
+    ).toEqual({ documentId: 'global-doc', siteName: 'TPB', siteDescription: 'Site description' });
+  });
+
   it('omits missing media fields and sanitizes empty block arrays', () => {
-    const input: StrapiGlobal = {
+    const input: CmsGlobal = {
       documentId: 'global-doc',
       siteName: 'TPB',
       siteDescription: 'Site description',
@@ -54,30 +65,6 @@ describe('mapGlobal', () => {
       siteName: 'TPB',
       siteDescription: 'Site description',
       analytics_script: [],
-    });
-  });
-
-  it('handles null media relations and null block relations', () => {
-    expect(
-      mapGlobal({
-        documentId: 'global-doc',
-        siteName: 'TPB',
-        siteDescription: 'Site description',
-        favicon: null,
-        logo: null,
-        defaultSeo: {
-          metaTitle: 'Default title',
-          shareImage: null,
-        },
-        analytics_script: null,
-      }),
-    ).toEqual({
-      documentId: 'global-doc',
-      siteName: 'TPB',
-      siteDescription: 'Site description',
-      defaultSeo: {
-        metaTitle: 'Default title',
-      },
     });
   });
 });

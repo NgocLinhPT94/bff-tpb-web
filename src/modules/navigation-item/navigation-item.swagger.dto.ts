@@ -1,11 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { RelationSummaryDto } from '../../common/swagger/common.swagger.dto';
+import { RelationSummarySwaggerDto } from '../../common/swagger/common.swagger.dto.js';
 
 /**
  * Navigation item DTO for Swagger documentation.
- * Includes parent and children relationships for tree structure.
  */
-export class NavigationItemDto {
+export class NavigationItemSwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'nav-item-001',
@@ -14,19 +13,19 @@ export class NavigationItemDto {
 
   @ApiPropertyOptional({
     description: 'Navigation item name',
-    example: 'Products',
+    example: 'personal-banking',
   })
   name?: string;
 
   @ApiPropertyOptional({
-    description: 'Navigation item title',
-    example: 'Our Products',
+    description: 'Display title',
+    example: 'Personal Banking',
   })
   title?: string;
 
   @ApiPropertyOptional({
     description: 'Navigation URL',
-    example: '/products',
+    example: '/personal-banking',
   })
   url?: string;
 
@@ -40,23 +39,23 @@ export class NavigationItemDto {
     description: 'Navigation item icon',
     type: Object,
   })
-  icon?: Record<string, unknown>;
-
-  @ApiPropertyOptional({
-    description: 'Parent navigation reference',
-    type: RelationSummaryDto,
-  })
-  navigation?: RelationSummaryDto;
-
-  @ApiPropertyOptional({
-    description: 'Parent navigation item reference',
-    type: RelationSummaryDto,
-  })
-  parent?: RelationSummaryDto;
+  icon?: object;
 
   @ApiProperty({
-    description: 'Child navigation items (tree structure)',
-    type: () => [NavigationItemDto],
+    description: 'Parent navigations this item belongs to',
+    type: [RelationSummarySwaggerDto],
   })
-  children!: NavigationItemDto[];
+  navigations!: RelationSummarySwaggerDto[];
+
+  @ApiPropertyOptional({
+    description: 'Parent navigation item',
+    type: RelationSummarySwaggerDto,
+  })
+  parent?: RelationSummarySwaggerDto;
+
+  @ApiProperty({
+    description: 'Child navigation items (self-referencing)',
+    type: () => [NavigationItemSwaggerDto],
+  })
+  children!: NavigationItemSwaggerDto[];
 }

@@ -1,16 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MediaSummaryDto } from '../../common/swagger/common.swagger.dto';
-import { CategoryDto } from '../categories/categories.swagger.dto';
+import { MediaSummarySwaggerDto } from '../../common/swagger/common.swagger.dto.js';
+import { CategorySwaggerDto } from '../categories/categories.swagger.dto.js';
 
 /**
  * FAQ product summary DTO for Swagger documentation.
  */
-export class FaqProductSummaryDto {
-  @ApiPropertyOptional({
+export class FaqProductSummarySwaggerDto {
+  @ApiProperty({
     description: 'Unique document identifier',
     example: 'product-001',
   })
-  documentId?: string;
+  documentId!: string;
 
   @ApiPropertyOptional({
     description: 'Product name',
@@ -31,27 +31,27 @@ export class FaqProductSummaryDto {
   product_type?: string;
 
   @ApiPropertyOptional({
-    description: 'Short description',
-    example: 'A high-yield savings account.',
+    description: 'Short description of the product',
+    example: 'A high-yield savings account with no minimum balance.',
   })
   short_description?: string;
 
   @ApiPropertyOptional({
-    description: 'Thumbnail image',
-    type: MediaSummaryDto,
+    description: 'Product thumbnail image',
+    type: MediaSummarySwaggerDto,
   })
-  thumbnail?: MediaSummaryDto | null;
+  thumbnail?: MediaSummarySwaggerDto | null;
 }
 
 /**
  * FAQ DTO for Swagger documentation.
  */
-export class FaqDto {
-  @ApiPropertyOptional({
+export class FaqSwaggerDto {
+  @ApiProperty({
     description: 'Unique document identifier',
     example: 'faq-001',
   })
-  documentId?: string;
+  documentId!: string;
 
   @ApiPropertyOptional({
     description: 'FAQ question',
@@ -61,9 +61,15 @@ export class FaqDto {
 
   @ApiPropertyOptional({
     description: 'FAQ answer as structured blocks',
-    example: [{ type: 'paragraph', content: 'To open an account...' }],
+    example: [{ type: 'paragraph', content: 'To open a savings account...' }],
   })
   answer?: unknown[];
+
+  @ApiPropertyOptional({
+    description: 'URL slug',
+    example: 'how-to-open-savings-account',
+  })
+  slug?: string;
 
   @ApiPropertyOptional({
     description: 'Whether the FAQ is active',
@@ -72,14 +78,20 @@ export class FaqDto {
   active?: boolean;
 
   @ApiPropertyOptional({
-    description: 'FAQ category',
-    type: CategoryDto,
+    description: 'Sort order',
+    example: 1,
   })
-  category?: CategoryDto | null;
+  sortOrder?: number;
 
-  @ApiProperty({
-    description: 'Products associated with this FAQ',
-    type: [FaqProductSummaryDto],
+  @ApiPropertyOptional({
+    description: 'FAQ category',
+    type: CategorySwaggerDto,
   })
-  products!: FaqProductSummaryDto[];
+  category?: CategorySwaggerDto | null;
+
+  @ApiPropertyOptional({
+    description: 'Related product',
+    type: FaqProductSummarySwaggerDto,
+  })
+  product?: FaqProductSummarySwaggerDto | null;
 }

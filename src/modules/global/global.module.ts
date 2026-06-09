@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { StrapiModule } from '../../infrastructure/strapi/strapi.module';
+import { CmsModule } from '../../integrations/cms/cms.module';
 import { GlobalController } from './global.controller';
 import { GlobalService } from './global.service';
 
 @Module({
-  imports: [StrapiModule],
+  imports: [CmsModule],
   controllers: [GlobalController],
   providers: [GlobalService],
+  exports: [GlobalService],
 })
 export class GlobalModule {}

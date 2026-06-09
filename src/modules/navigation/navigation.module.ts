@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { StrapiModule } from '../../infrastructure/strapi/strapi.module';
+import { CmsModule } from '../../integrations/cms/cms.module';
 import { NavigationController } from './navigation.controller';
 import { NavigationService } from './navigation.service';
 
 @Module({
-  imports: [StrapiModule],
+  imports: [CmsModule],
   controllers: [NavigationController],
   providers: [NavigationService],
+  exports: [NavigationService],
 })
 export class NavigationModule {}

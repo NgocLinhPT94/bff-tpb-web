@@ -1,14 +1,11 @@
+import { PageTemplate, PageWorkflowState } from './pages.dto';
 import { mapPage } from './pages.mapper';
 
 describe('mapPage', () => {
   it('maps null dynamic-zone relation to an empty array', () => {
     expect(
       mapPage({ documentId: 'page-doc', title: 'Home', sections: null }),
-    ).toEqual({
-      documentId: 'page-doc',
-      title: 'Home',
-      sections: [],
-    });
+    ).toEqual({ documentId: 'page-doc', title: 'Home', sections: [] });
   });
 
   it('maps empty dynamic-zone arrays', () => {
@@ -28,44 +25,14 @@ describe('mapPage', () => {
             id: 1,
             __component: 'blocks.cta-banner',
             title: 'Apply now',
-            media: {
-              id: 2,
-              url: '/banner.jpg',
-              alternativeText: 'Banner',
-              width: 1200,
-              height: 630,
-              formats: { thumbnail: { url: '/thumb.jpg' } },
-              provider: 'local',
-              related: [],
-            },
             createdAt: 'internal',
-          },
-          {
-            __component: 'blocks.faq-block',
-            items: [],
           },
         ],
       }),
     ).toEqual({
       documentId: 'page-doc',
       slug: 'home',
-      sections: [
-        {
-          __component: 'blocks.cta-banner',
-          title: 'Apply now',
-          media: {
-            url: '/banner.jpg',
-            alternativeText: 'Banner',
-            width: 1200,
-            height: 630,
-            formats: { thumbnail: { url: '/thumb.jpg' } },
-          },
-        },
-        {
-          __component: 'blocks.faq-block',
-          items: [],
-        },
-      ],
+      sections: [{ __component: 'blocks.cta-banner', title: 'Apply now' }],
     });
   });
 
@@ -79,5 +46,27 @@ describe('mapPage', () => {
       documentId: 'page-doc',
       sections: [{ __component: 'blocks.product-highlight', title: 'Loans' }],
     });
+  });
+
+  it('passes through valid template and workflowState enum values', () => {
+    expect(
+      mapPage({
+        documentId: 'page-doc',
+        template: 'landing',
+        workflowState: 'published',
+        sections: [],
+      }),
+    ).toEqual({
+      documentId: 'page-doc',
+      template: PageTemplate.LANDING,
+      workflowState: PageWorkflowState.PUBLISHED,
+      sections: [],
+    });
+  });
+
+  it('drops unknown enum values', () => {
+    expect(
+      mapPage({ documentId: 'page-doc', template: 'unknown', sections: [] }),
+    ).toEqual({ documentId: 'page-doc', sections: [] });
   });
 });

@@ -3,10 +3,9 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SuccessEnvelopeDto, ErrorEnvelopeDto } from '../../common/dto';
 import { EmptyQueryDto } from '../../common/query';
 import type { RequestWithId } from '../../common/http/request-with-id';
-import { buildRequestMeta } from '../shared/response-envelope';
-import type { AboutDto } from './about.mapper';
+import { createSuccessEnvelope } from '../../common/utils/response-envelope';
+import type { AboutDto } from './about.dto';
 import { AboutService } from './about.service';
-import { AboutDto as AboutSwaggerDto } from './about.swagger.dto';
 
 @ApiTags('About')
 @Controller('about')
@@ -18,7 +17,6 @@ export class AboutController {
   @ApiResponse({
     status: 200,
     description: 'About page content retrieved successfully',
-    type: () => SuccessEnvelopeDto<AboutSwaggerDto>,
   })
   @ApiResponse({
     status: 404,
@@ -44,7 +42,9 @@ export class AboutController {
     @Query() _query: EmptyQueryDto,
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<AboutDto>> {
-    const data = await this.aboutService.findOne();
-    return new SuccessEnvelopeDto(data, buildRequestMeta(request));
+    return createSuccessEnvelope(
+      request,
+      await this.aboutService.findOne(),
+    );
   }
 }

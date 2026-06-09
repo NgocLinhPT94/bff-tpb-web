@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { StrapiModule } from '../../infrastructure/strapi/strapi.module';
+import { CmsModule } from '../../integrations/cms/cms.module';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 
 @Module({
-  imports: [StrapiModule],
+  imports: [CmsModule],
   controllers: [ProductsController],
   providers: [ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}

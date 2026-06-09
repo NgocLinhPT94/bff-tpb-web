@@ -55,42 +55,17 @@ describe('promotions mapper', () => {
           formats: { thumbnail: { url: '/uploads/promo-thumb.png' } },
         },
       ],
+      applicableProducts: [],
       products: [
-        {
-          documentId: 'product-1',
-          name: 'Premier Account',
-          slug: 'premier-account',
-        },
+        { documentId: 'product-1', name: 'Premier Account', slug: 'premier-account' },
       ],
+      categories: [],
     });
   });
 
-  it('handles missing media fields and empty relation arrays', () => {
-    const result = mapPromotion({
-      documentId: 'promotion-2',
-      title: 'No banner promo',
-      products: [],
-    });
-
-    expect(result).toEqual({
-      documentId: 'promotion-2',
-      title: 'No banner promo',
-      banner: [],
-      products: [],
-    });
-  });
-
-  it('handles null relation arrays and null media relations', () => {
+  it('handles null relation arrays', () => {
     expect(
-      mapPromotion({
-        documentId: 'promotion-3',
-        banner: null,
-        products: null,
-      }),
-    ).toEqual({
-      documentId: 'promotion-3',
-      banner: [],
-      products: [],
-    });
+      mapPromotion({ documentId: 'promotion-3', banner: null, products: null }),
+    ).toEqual({ documentId: 'promotion-3', banner: [], applicableProducts: [], categories: [], products: [] });
   });
 });

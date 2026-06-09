@@ -7,6 +7,8 @@ describe('authors mapper', () => {
       documentId: 'author-1',
       name: 'Jane Writer',
       email: 'jane@example.com',
+      title: 'Senior Financial Editor',
+      bio: 'Jane has 10 years of experience in financial journalism.',
       createdAt: '2026-05-11T00:00:00.000Z',
       avatar: {
         id: 10,
@@ -24,6 +26,8 @@ describe('authors mapper', () => {
       documentId: 'author-1',
       name: 'Jane Writer',
       email: 'jane@example.com',
+      title: 'Senior Financial Editor',
+      bio: 'Jane has 10 years of experience in financial journalism.',
       avatar: {
         url: '/uploads/avatar.png',
         alternativeText: 'Avatar',
@@ -50,8 +54,9 @@ describe('authors mapper', () => {
     expect(
       mapAuthor({
         documentId: 'author-3',
+        name: 'No Fields',
         articles: [],
       }),
-    ).toEqual({ documentId: 'author-3' });
+    ).toEqual({ documentId: 'author-3', name: 'No Fields' });
   });
 });

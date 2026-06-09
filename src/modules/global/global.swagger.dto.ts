@@ -1,70 +1,70 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
-  MediaSummaryDto,
-  SeoDto,
-} from '../../common/swagger/common.swagger.dto';
+  MediaSummarySwaggerDto,
+  SeoSwaggerDto,
+} from '../../common/swagger/common.swagger.dto.js';
 
 /**
  * Global site settings DTO for Swagger documentation.
  */
-export class GlobalDto {
+export class GlobalSwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'global-001',
   })
   documentId!: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Site name',
     example: 'TPBank',
   })
-  siteName!: string;
-
-  @ApiProperty({
-    description: 'Site description',
-    example: 'TPBank Digital Banking Services',
-  })
-  siteDescription!: string;
+  siteName?: string;
 
   @ApiPropertyOptional({
-    description: 'Customer hotline number',
-    example: '1800585885',
+    description: 'Site description',
+    example: 'TPBank - Digital Banking Services',
+  })
+  siteDescription?: string;
+
+  @ApiPropertyOptional({
+    description: 'Customer support hotline',
+    example: '1900 6060 00',
   })
   hotline?: string;
 
   @ApiPropertyOptional({
-    description: 'Contact email',
-    example: 'support@tpbank.com',
+    description: 'Contact email address',
+    example: 'support@tpbank.vn',
   })
   email?: string;
 
   @ApiPropertyOptional({
-    description: 'Physical address',
-    example: 'Hanoi, Vietnam',
+    description: 'Office address',
+    example: '57 Ly Thuong Kiet, Hoan Kiem, Ha Noi',
   })
   address?: string;
 
   @ApiPropertyOptional({
-    description: 'Analytics script blocks',
-    example: [{ type: 'script', code: '...' }],
+    description: 'Analytics tracking scripts',
+    example: [{ type: 'script', src: 'https://analytics.example.com/tag.js' }],
   })
   analytics_script?: unknown[];
 
   @ApiPropertyOptional({
     description: 'Site favicon',
-    type: MediaSummaryDto,
+    type: MediaSummarySwaggerDto,
   })
-  favicon?: MediaSummaryDto;
+  favicon?: MediaSummarySwaggerDto;
 
   @ApiPropertyOptional({
     description: 'Site logo',
-    type: MediaSummaryDto,
+    type: MediaSummarySwaggerDto,
   })
-  logo?: MediaSummaryDto;
+  logo?: MediaSummarySwaggerDto;
 
   @ApiPropertyOptional({
-    description: 'Default SEO settings',
-    type: SeoDto,
+    description: 'Default SEO metadata',
+    type: SeoSwaggerDto,
   })
-  defaultSeo?: SeoDto;
+  defaultSeo?: SeoSwaggerDto;
 }

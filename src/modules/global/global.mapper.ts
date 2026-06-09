@@ -1,51 +1,17 @@
+import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
   mapMedia,
   removeUndefined,
   sanitizePublicValue,
-  type MediaSummaryDto,
-  type StrapiMediaInput,
-} from '../shared/strapi-mapper';
+} from '../../common/utils/cms-mapper';
+import type { GlobalDto, SeoDto } from './global.dto';
 
-export interface StrapiGlobal {
-  documentId: string;
-  siteName: string;
-  siteDescription: string;
-  hotline?: string | null;
-  email?: string | null;
-  address?: string | null;
-  analytics_script?: unknown[] | null;
-  favicon?: StrapiMediaInput | null;
-  logo?: StrapiMediaInput | null;
-  defaultSeo?: StrapiSeo | null;
-}
+export type CmsGlobal =
+  operations['global/get/global']['responses'][200]['content']['application/json']['data'];
 
-export interface StrapiSeo {
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-  shareImage?: StrapiMediaInput | null;
-  [key: string]: unknown;
-}
+type CmsSeo = components['schemas']['SharedSeoEntry'];
 
-export interface SeoDto {
-  metaTitle?: string;
-  metaDescription?: string;
-  shareImage?: MediaSummaryDto;
-}
-
-export interface GlobalDto {
-  documentId: string;
-  siteName: string;
-  siteDescription: string;
-  hotline?: string;
-  email?: string;
-  address?: string;
-  analytics_script?: unknown[];
-  favicon?: MediaSummaryDto;
-  logo?: MediaSummaryDto;
-  defaultSeo?: SeoDto;
-}
-
-export function mapGlobal(global: StrapiGlobal): GlobalDto {
+export function mapGlobal(global: CmsGlobal): GlobalDto {
   return removeUndefined({
     documentId: global.documentId,
     siteName: global.siteName,
@@ -54,7 +20,7 @@ export function mapGlobal(global: StrapiGlobal): GlobalDto {
     email: global.email ?? undefined,
     address: global.address ?? undefined,
     analytics_script: Array.isArray(global.analytics_script)
-      ? global.analytics_script.map((block) => sanitizePublicValue(block))
+      ? global.analytics_script.map(sanitizePublicValue)
       : undefined,
     favicon: mapMedia(global.favicon),
     logo: mapMedia(global.logo),
@@ -62,10 +28,8 @@ export function mapGlobal(global: StrapiGlobal): GlobalDto {
   });
 }
 
-function mapSeo(seo: StrapiSeo | null | undefined): SeoDto | undefined {
-  if (!seo) {
-    return undefined;
-  }
+function mapSeo(seo: CmsSeo | null | undefined): SeoDto | undefined {
+  if (!seo) return undefined;
 
   return removeUndefined({
     metaTitle: seo.metaTitle ?? undefined,

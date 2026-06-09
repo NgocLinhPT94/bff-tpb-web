@@ -1,13 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { PaginationMeta } from '../../common/dto';
 import type { ListQueryDto } from '../../common/query';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
-import { mapAuthor, mapAuthors, type AuthorDto } from './authors.mapper';
-import type {
-  StrapiEntity,
-  StrapiListResponse,
-  StrapiSingleResponse,
-} from '../shared/strapi-mapper';
+import { CmsClient } from '../../integrations/cms/cms.client';
+import { mapAuthor, mapAuthors, type CmsAuthor, type CmsAuthorListItem } from './authors.mapper';
+import type { AuthorDto } from './authors.dto';
+import type { CmsListResponse, CmsSingleResponse } from '../../common/utils/cms-mapper';
 
 const AUTHORS_POPULATE_PARAMS = {
   'populate[avatar]': true,
@@ -20,11 +17,11 @@ interface AuthorListResult {
 
 @Injectable()
 export class AuthorsService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
   async findAll(query: ListQueryDto): Promise<AuthorListResult> {
-    const response = await this.strapiClient.get<
-      StrapiListResponse<StrapiEntity>
+    const response = await this.cmsClient.get<
+      CmsListResponse<CmsAuthorListItem>
     >('/authors', {
       params: {
         'pagination[page]': query.page,
@@ -41,8 +38,8 @@ export class AuthorsService {
   }
 
   async findOne(documentId: string): Promise<AuthorDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiEntity>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<CmsAuthor>
     >(`/authors/${documentId}`, {
       params: AUTHORS_POPULATE_PARAMS,
     });

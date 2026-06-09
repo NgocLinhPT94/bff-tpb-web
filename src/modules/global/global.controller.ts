@@ -3,10 +3,9 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SuccessEnvelopeDto, ErrorEnvelopeDto } from '../../common/dto';
 import { EmptyQueryDto } from '../../common/query';
 import type { RequestWithId } from '../../common/http/request-with-id';
-import { buildRequestMeta } from '../shared/response-envelope';
-import type { GlobalDto } from './global.mapper';
+import { createSuccessEnvelope } from '../../common/utils/response-envelope';
+import type { GlobalDto } from './global.dto';
 import { GlobalService } from './global.service';
-import { GlobalDto as GlobalSwaggerDto } from './global.swagger.dto';
 
 @ApiTags('Global')
 @Controller('global')
@@ -18,7 +17,6 @@ export class GlobalController {
   @ApiResponse({
     status: 200,
     description: 'Global settings retrieved successfully',
-    type: () => SuccessEnvelopeDto<GlobalSwaggerDto>,
   })
   @ApiResponse({
     status: 404,
@@ -44,7 +42,9 @@ export class GlobalController {
     @Query() _query: EmptyQueryDto,
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<GlobalDto>> {
-    const data = await this.globalService.findOne();
-    return new SuccessEnvelopeDto(data, buildRequestMeta(request));
+    return createSuccessEnvelope(
+      request,
+      await this.globalService.findOne(),
+    );
   }
 }

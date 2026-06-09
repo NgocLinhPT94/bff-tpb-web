@@ -1,9 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PageTemplate, PageWorkflowState } from './pages.dto.js';
 
 /**
  * Page DTO for Swagger documentation.
  */
-export class PageDto {
+export class PageSwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'page-001',
@@ -12,43 +13,45 @@ export class PageDto {
 
   @ApiPropertyOptional({
     description: 'Page title',
-    example: 'About Us',
+    example: 'Home Page',
   })
   title?: string;
 
   @ApiPropertyOptional({
-    description: 'Page description for SEO',
-    example: 'Learn more about TPBank and our mission.',
+    description: 'Page description',
+    example: 'Welcome to TPBank digital banking services.',
   })
   description?: string;
 
   @ApiPropertyOptional({
     description: 'URL slug',
-    example: 'about-us',
+    example: 'home',
   })
   slug?: string;
 
   @ApiPropertyOptional({
-    description: 'Page template identifier',
-    example: 'default',
+    description: 'Page template type',
+    enum: PageTemplate,
+    example: PageTemplate.HOME,
   })
-  template?: string;
+  template?: PageTemplate;
 
   @ApiPropertyOptional({
-    description: 'Workflow state',
-    example: 'published',
+    description: 'Page workflow state',
+    enum: PageWorkflowState,
+    example: PageWorkflowState.PUBLISHED,
   })
-  workflowState?: string;
+  workflowState?: PageWorkflowState;
 
   @ApiPropertyOptional({
     description: 'Publication date (ISO 8601)',
-    example: '2024-01-01T00:00:00.000Z',
+    example: '2024-01-15T00:00:00.000Z',
   })
   publishDate?: string;
 
-  @ApiProperty({
-    description: 'Page sections as structured blocks',
-    example: [{ type: 'hero', title: 'Welcome' }],
+  @ApiPropertyOptional({
+    description: 'Page sections as dynamic content blocks',
+    example: [{ __component: 'blocks.rich-text', content: '...' }],
   })
-  sections!: unknown[];
+  sections?: unknown[];
 }

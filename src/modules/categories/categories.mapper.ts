@@ -1,25 +1,22 @@
-import {
-  getString,
-  removeUndefined,
-  type StrapiEntity,
-} from '../shared/strapi-mapper';
+import { removeUndefined } from '../../common/utils/cms-mapper';
+import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { CategoryDto } from './categories.dto';
 
-export interface CategoryDto {
-  documentId?: string;
-  name?: string;
-  slug?: string;
-  description?: string;
-}
+export type CmsCategory =
+  operations['category/get/categories_by_id']['responses'][200]['content']['application/json']['data'];
 
-export function mapCategory(entity: StrapiEntity): CategoryDto {
+export type CmsCategoryListItem =
+  operations['category/get/categories']['responses'][200]['content']['application/json']['data'][number];
+
+export function mapCategory(entity: CmsCategory | CmsCategoryListItem): CategoryDto {
   return removeUndefined({
-    documentId: getString(entity.documentId),
-    name: getString(entity.name),
-    slug: getString(entity.slug),
-    description: getString(entity.description),
+    documentId: entity.documentId,
+    name: entity.name,
+    slug: entity.slug,
+    description: entity.description ?? undefined,
   });
 }
 
-export function mapCategories(entities: StrapiEntity[]): CategoryDto[] {
+export function mapCategories(entities: CmsCategoryListItem[]): CategoryDto[] {
   return entities.map(mapCategory);
 }

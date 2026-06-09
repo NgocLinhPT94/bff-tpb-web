@@ -1,17 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { PaginationMeta } from '../../common/dto';
 import type { ListQueryDto } from '../../common/query';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
-import {
-  mapCategories,
-  mapCategory,
-  type CategoryDto,
-} from './categories.mapper';
-import type {
-  StrapiEntity,
-  StrapiListResponse,
-  StrapiSingleResponse,
-} from '../shared/strapi-mapper';
+import { CmsClient } from '../../integrations/cms/cms.client';
+import { mapCategories, mapCategory, type CmsCategory, type CmsCategoryListItem } from './categories.mapper';
+import type { CategoryDto } from './categories.dto';
+import type { CmsListResponse, CmsSingleResponse } from '../../common/utils/cms-mapper';
 
 interface CategoryListResult {
   data: CategoryDto[];
@@ -20,16 +13,15 @@ interface CategoryListResult {
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
   async findAll(query: ListQueryDto): Promise<CategoryListResult> {
-    const response = await this.strapiClient.get<
-      StrapiListResponse<StrapiEntity>
+    const response = await this.cmsClient.get<
+      CmsListResponse<CmsCategoryListItem>
     >('/categories', {
       params: {
         'pagination[page]': query.page,
         'pagination[pageSize]': query.pageSize,
-        sort: query.sort,
       },
     });
 
@@ -40,8 +32,8 @@ export class CategoriesService {
   }
 
   async findOne(documentId: string): Promise<CategoryDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiEntity>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<CmsCategory>
     >(`/categories/${documentId}`);
 
     if (!response.data) {

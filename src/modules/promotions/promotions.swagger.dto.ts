@@ -1,10 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MediaSummaryDto } from '../../common/swagger/common.swagger.dto';
+import { MediaSummarySwaggerDto } from '../../common/swagger/common.swagger.dto.js';
 
 /**
  * Promotion product summary DTO for Swagger documentation.
  */
-export class PromotionProductSummaryDto {
+export class PromotionProductSummarySwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'product-001',
@@ -27,7 +27,7 @@ export class PromotionProductSummaryDto {
 /**
  * Promotion DTO for Swagger documentation.
  */
-export class PromotionDto {
+export class PromotionSwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'promo-001',
@@ -36,25 +36,25 @@ export class PromotionDto {
 
   @ApiPropertyOptional({
     description: 'Promotion title',
-    example: 'New Year Special Offer 2024',
+    example: 'New Year Cashback Promotion',
   })
   title?: string;
 
   @ApiPropertyOptional({
     description: 'URL slug',
-    example: 'new-year-special-2024',
+    example: 'new-year-cashback',
   })
   slug?: string;
 
   @ApiPropertyOptional({
     description: 'Short description',
-    example: 'Get 50% off on account opening fees.',
+    example: 'Get up to 5% cashback on all transactions this January.',
   })
   shortDescription?: string;
 
   @ApiPropertyOptional({
     description: 'Promotion content as structured blocks',
-    example: [{ type: 'paragraph', content: 'Welcome to...' }],
+    example: [{ type: 'paragraph', content: 'Terms and conditions...' }],
   })
   content?: unknown[];
 
@@ -72,25 +72,46 @@ export class PromotionDto {
 
   @ApiPropertyOptional({
     description: 'Call-to-action button label',
-    example: 'Learn More',
+    example: 'Apply Now',
   })
   ctaLabel?: string;
 
   @ApiPropertyOptional({
     description: 'Call-to-action link URL',
-    example: '/promotions/new-year-special',
+    example: '/products/digital-savings-account',
   })
   ctaLink?: string;
 
-  @ApiProperty({
-    description: 'Promotion banner images',
-    type: [MediaSummaryDto],
+  @ApiPropertyOptional({
+    description: 'Customer segment',
+    enum: ['individual', 'corporate', 'priority', 'all'],
+    example: 'all',
   })
-  banner!: MediaSummaryDto[];
+  customerSegment?: string;
+
+  @ApiPropertyOptional({
+    description: 'Applicable cards',
+    enum: ['Visa', 'Mastercard', 'JCB'],
+    example: 'Visa',
+  })
+  applicableCards?: string;
+
+  @ApiPropertyOptional({
+    description: 'Target audience',
+    enum: ['Cá nhân', 'Doanh nghiệp', 'Tất cả'],
+    example: 'Tất cả',
+  })
+  targetAudience?: string;
 
   @ApiProperty({
-    description: 'Products associated with this promotion',
-    type: [PromotionProductSummaryDto],
+    description: 'Promotion banner images',
+    type: [MediaSummarySwaggerDto],
   })
-  products!: PromotionProductSummaryDto[];
+  banner!: MediaSummarySwaggerDto[];
+
+  @ApiProperty({
+    description: 'Related products',
+    type: [PromotionProductSummarySwaggerDto],
+  })
+  products!: PromotionProductSummarySwaggerDto[];
 }

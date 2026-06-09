@@ -1,53 +1,56 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import type { PaginationMeta } from '../../common/dto';
 import type { ListQueryDto } from '../../common/query';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
+import { CmsClient } from '../../integrations/cms/cms.client';
 import {
   buildPopulateParams,
-  buildStrapiListParams,
-} from '../shared/list-query';
+  buildCmsListParams,
+} from '../../common/utils/list-query';
 import type {
-  StrapiCollectionResponse,
-  StrapiSingleResponse,
-} from '../shared/strapi-mapper';
+  CmsCollectionResponse,
+  CmsSingleResponse,
+} from '../../common/utils/cms-mapper';
 import {
   mapNavigationItem,
-  type NavigationItemDto,
-  type StrapiNavigationItem,
+  type CmsNavigationItem,
 } from './navigation-item.mapper';
+import type { NavigationItemDto } from './navigation-item.dto';
 
 const NAVIGATION_ITEM_POPULATE = [
   'icon',
-  'navigation',
+  'navigations',
   'parent',
+  'children',
   'children.icon',
+  'children.children',
   'children.children.icon',
-  'children.children.children.icon',
-  'children.children.children.children.icon',
-  'children.children.children.children.children.icon',
 ] as const;
+
+interface NavigationItemListResult {
+  data: NavigationItemDto[];
+  pagination?: PaginationMeta;
+}
 
 @Injectable()
 export class NavigationItemService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
-  async findAll(
-    query: ListQueryDto,
-  ): Promise<StrapiCollectionResponse<NavigationItemDto>> {
-    const response = await this.strapiClient.get<
-      StrapiCollectionResponse<StrapiNavigationItem>
+  async findAll(query: ListQueryDto): Promise<NavigationItemListResult> {
+    const response = await this.cmsClient.get<
+      CmsCollectionResponse<CmsNavigationItem>
     >('/navigation-items', {
-      params: buildStrapiListParams(query, NAVIGATION_ITEM_POPULATE),
+      params: buildCmsListParams(query, NAVIGATION_ITEM_POPULATE),
     });
 
     return {
       data: response.data.map((item) => mapNavigationItem(item)),
-      meta: response.meta,
+      pagination: response.meta?.pagination,
     };
   }
 
   async findOne(documentId: string): Promise<NavigationItemDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiNavigationItem>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<CmsNavigationItem>
     >(`/navigation-items/${documentId}`, {
       params: buildPopulateParams(NAVIGATION_ITEM_POPULATE),
     });

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { StrapiModule } from '../../infrastructure/strapi/strapi.module';
+import { CmsModule } from '../../integrations/cms/cms.module';
 import { AuthorsController } from './authors.controller';
 import { AuthorsService } from './authors.service';
 
 @Module({
-  imports: [StrapiModule],
+  imports: [CmsModule],
   controllers: [AuthorsController],
   providers: [AuthorsService],
   exports: [AuthorsService],

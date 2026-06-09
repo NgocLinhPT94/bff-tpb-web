@@ -1,31 +1,43 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { MediaSummaryDto } from '../../common/swagger/common.swagger.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { MediaSummarySwaggerDto } from '../../common/swagger/common.swagger.dto.js';
 
 /**
  * Author DTO for Swagger documentation.
  */
-export class AuthorDto {
-  @ApiPropertyOptional({
+export class AuthorSwaggerDto {
+  @ApiProperty({
     description: 'Unique document identifier',
     example: 'author-001',
   })
-  documentId?: string;
+  documentId!: string;
 
   @ApiPropertyOptional({
-    description: 'Author name',
-    example: 'John Doe',
+    description: 'Author full name',
+    example: 'Nguyen Van A',
   })
   name?: string;
 
   @ApiPropertyOptional({
-    description: 'Author email',
-    example: 'john.doe@example.com',
+    description: 'Author email address',
+    example: 'nguyenvana@tpbank.vn',
   })
   email?: string;
 
   @ApiPropertyOptional({
-    description: 'Author avatar image',
-    type: MediaSummaryDto,
+    description: 'Author title / position',
+    example: 'Senior Financial Editor',
   })
-  avatar?: MediaSummaryDto | null;
+  title?: string;
+
+  @ApiPropertyOptional({
+    description: 'Author biography',
+    example: 'Nguyen Van A is a senior financial editor with 10 years of experience.',
+  })
+  bio?: string;
+
+  @ApiPropertyOptional({
+    description: 'Author avatar image',
+    type: MediaSummarySwaggerDto,
+  })
+  avatar?: MediaSummarySwaggerDto | null;
 }

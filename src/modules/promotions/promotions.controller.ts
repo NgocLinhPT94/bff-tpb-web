@@ -3,10 +3,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SuccessEnvelopeDto, ErrorEnvelopeDto } from '../../common/dto';
 import type { RequestWithId } from '../../common/http/request-with-id';
 import { EmptyQueryDto, ListQueryDto } from '../../common/query';
-import { createSuccessEnvelope } from '../shared/response-envelope';
+import { createSuccessEnvelope } from '../../common/utils/response-envelope';
 import type { PromotionDto } from './promotions.dto';
 import { PromotionsService } from './promotions.service';
-import { PromotionDto as PromotionSwaggerDto } from './promotions.swagger.dto';
 
 @ApiTags('Promotions')
 @Controller('promotions')
@@ -18,7 +17,6 @@ export class PromotionsController {
   @ApiResponse({
     status: 200,
     description: 'List of promotions retrieved successfully',
-    type: () => SuccessEnvelopeDto<PromotionSwaggerDto[]>,
   })
   @ApiResponse({
     status: 400,
@@ -44,7 +42,7 @@ export class PromotionsController {
     return createSuccessEnvelope(
       request,
       response.data,
-      response.meta?.pagination,
+      response.pagination,
     );
   }
 
@@ -53,12 +51,10 @@ export class PromotionsController {
   @ApiParam({
     name: 'documentId',
     description: 'Promotion document ID',
-    example: 'promo-001',
   })
   @ApiResponse({
     status: 200,
     description: 'Promotion retrieved successfully',
-    type: () => SuccessEnvelopeDto<PromotionSwaggerDto>,
   })
   @ApiResponse({
     status: 400,

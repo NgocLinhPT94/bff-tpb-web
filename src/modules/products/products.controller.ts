@@ -3,10 +3,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SuccessEnvelopeDto, ErrorEnvelopeDto } from '../../common/dto';
 import { EmptyQueryDto, ListQueryDto } from '../../common/query';
 import type { RequestWithId } from '../../common/http/request-with-id';
-import { createSuccessEnvelope } from '../shared/response-envelope';
+import { createSuccessEnvelope } from '../../common/utils/response-envelope';
 import type { ProductDto } from './products.dto';
 import { ProductsService } from './products.service';
-import { ProductDto as ProductSwaggerDto } from './products.swagger.dto';
 
 @ApiTags('Products')
 @Controller('products')
@@ -18,7 +17,6 @@ export class ProductsController {
   @ApiResponse({
     status: 200,
     description: 'List of products retrieved successfully',
-    type: () => SuccessEnvelopeDto<ProductSwaggerDto[]>,
   })
   @ApiResponse({
     status: 400,
@@ -44,7 +42,7 @@ export class ProductsController {
     return createSuccessEnvelope(
       request,
       response.data,
-      response.meta?.pagination,
+      response.pagination,
     );
   }
 
@@ -53,12 +51,10 @@ export class ProductsController {
   @ApiParam({
     name: 'documentId',
     description: 'Product document ID',
-    example: 'product-001',
   })
   @ApiResponse({
     status: 200,
     description: 'Product retrieved successfully',
-    type: () => SuccessEnvelopeDto<ProductSwaggerDto>,
   })
   @ApiResponse({
     status: 400,

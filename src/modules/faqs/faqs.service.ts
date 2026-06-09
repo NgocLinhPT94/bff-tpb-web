@@ -1,27 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import type { PaginationMeta } from '../../common/dto';
 import type { ListQueryDto } from '../../common/query';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
-import { mapFaq, mapFaqs, type FaqDto } from './faqs.mapper';
+import { CmsClient } from '../../integrations/cms/cms.client';
+import { mapFaq, mapFaqs, type CmsFaq, type CmsFaqListItem } from './faqs.mapper';
+import type { FaqDto } from './faqs.dto';
 import type {
-  StrapiCollectionResponse,
-  StrapiEntity,
-  StrapiSingleResponse,
-} from '../shared/strapi-mapper';
+  CmsCollectionResponse,
+  CmsSingleResponse,
+} from '../../common/utils/cms-mapper';
 
 const FAQS_POPULATE_PARAMS = {
   'populate[category]': true,
-  'populate[products][populate]': 'thumbnail',
+  'populate[product][populate]': 'thumbnail',
 } as const;
+
+interface FaqListResult {
+  data: FaqDto[];
+  pagination?: PaginationMeta;
+}
 
 @Injectable()
 export class FaqsService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
-  async findAll(
-    query: ListQueryDto,
-  ): Promise<StrapiCollectionResponse<FaqDto>> {
-    const response = await this.strapiClient.get<
-      StrapiCollectionResponse<StrapiEntity>
+  async findAll(query: ListQueryDto): Promise<FaqListResult> {
+    const response = await this.cmsClient.get<
+      CmsCollectionResponse<CmsFaqListItem>
     >('/faqs', {
       params: {
         ...FAQS_POPULATE_PARAMS,
@@ -33,13 +37,13 @@ export class FaqsService {
 
     return {
       data: mapFaqs(response.data),
-      meta: response.meta,
+      pagination: response.meta?.pagination,
     };
   }
 
   async findOne(documentId: string): Promise<FaqDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiEntity>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<CmsFaq>
     >(`/faqs/${documentId}`, {
       params: FAQS_POPULATE_PARAMS,
     });

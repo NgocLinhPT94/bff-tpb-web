@@ -1,100 +1,110 @@
+import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
-  getString,
-  mapMediaSummary,
   mapMediaArray,
+  mapMediaSummary,
+  mapRelationSummaries,
+  mapRelationSummary,
   removeUndefined,
-} from '../shared/strapi-mapper';
+  stripInternalFields,
+} from '../../common/utils/cms-mapper';
+import { mapTag } from '../tags/tags.mapper';
 import {
   ProductType,
+  ProductStatus,
+  CustomerSegment,
+  TargetAudience,
   type ProductDto,
   type ProductFaqSummaryDto,
   type ProductPromotionSummaryDto,
 } from './products.dto';
 
-export interface ProductStrapiEntity {
-  documentId: string;
-  name?: string | null;
-  slug?: string | null;
-  product_type?: string | null;
-  short_description?: string | null;
-  thumbnail?: unknown;
-  main_banner?: unknown;
-  documents?: unknown;
-  faqs?: Record<string, unknown>[] | null;
-  promotions?: Record<string, unknown>[] | null;
-  [key: string]: unknown;
-}
+export type ProductCmsEntity =
+  operations['product/get/products_by_id']['responses'][200]['content']['application/json']['data'];
+
+export type ProductCmsListItem =
+  operations['product/get/products']['responses'][200]['content']['application/json']['data'][number];
+
+type CmsProduct = ProductCmsEntity | ProductCmsListItem;
+
+type CmsFaqDocument = components['schemas']['ApiFaqFaqDocument'];
+type CmsPromotionDocument = components['schemas']['ApiPromotionPromotionDocument'];
 
 const PRODUCT_TYPES = new Set<string>(Object.values(ProductType));
+const PRODUCT_STATUSES = new Set<string>(Object.values(ProductStatus));
+const CUSTOMER_SEGMENTS = new Set<string>(Object.values(CustomerSegment));
+const TARGET_AUDIENCES = new Set<string>(Object.values(TargetAudience));
 
-export function mapProduct(product: ProductStrapiEntity): ProductDto {
+function mapEnum<T extends string>(
+  value: string | null | undefined,
+  validValues: Set<string>,
+): T | undefined {
+  if (!value || !validValues.has(value)) return undefined;
+  return value as T;
+}
+
+export function mapProduct(product: CmsProduct): ProductDto {
   return removeUndefined({
     documentId: product.documentId,
-    name: product.name ?? undefined,
-    slug: product.slug ?? undefined,
-    productType: mapProductType(product.product_type),
+    name: product.name,
+    slug: product.slug,
+    productType: mapEnum<ProductType>(product.product_type, PRODUCT_TYPES),
+    statusProduct: mapEnum<ProductStatus>(product.statusProduct, PRODUCT_STATUSES),
+    customerSegment: mapEnum<CustomerSegment>(product.customerSegment, CUSTOMER_SEGMENTS),
+    targetAudience: mapEnum<TargetAudience>(product.targetAudience, TARGET_AUDIENCES),
     shortDescription: product.short_description ?? undefined,
+    description: product.description?.map(stripInternalFields),
     thumbnail: mapMediaSummary(product.thumbnail) ?? undefined,
     mainBanner: mapMediaSummary(product.main_banner) ?? undefined,
+    coverImage: mapMediaSummary(product.coverImage) ?? undefined,
+    images: mapMediaArray(product.images),
     documents: mapMediaArray(product.documents),
+    seo: product.seo ? stripInternalFields(product.seo) : undefined,
+    tags: product.tags?.map(mapTag),
+    features: product.features?.map(stripInternalFields),
+    benefits: product.benefits?.map(stripInternalFields),
+    sortOrder: product.sortOrder ?? undefined,
+    interestRateMin: product.interestRateMin ?? undefined,
+    interestRateMax: product.interestRateMax ?? undefined,
+    loanAmountMin: product.loanAmountMin ?? undefined,
+    loanAmountMax: product.loanAmountMax ?? undefined,
+    tenor: product.tenor ?? undefined,
+    applyUrl: product.applyUrl ?? undefined,
+    category: mapRelationSummary(product.category),
+    relatedProducts: mapRelationSummaries(product.relatedProducts),
+    relatedArticles: mapRelationSummaries(product.relatedArticles),
+    applicablePromotions: mapRelationSummaries(product.applicablePromotions),
     faqs: mapFaqSummaries(product.faqs),
     promotions: mapPromotionSummaries(product.promotions),
   });
 }
 
-export function mapProducts(products: ProductStrapiEntity[]): ProductDto[] {
-  return products.map((product) => mapProduct(product));
-}
-
-function mapProductType(
-  value: string | null | undefined,
-): ProductType | undefined {
-  if (!value || !PRODUCT_TYPES.has(value)) {
-    return undefined;
-  }
-
-  return value as ProductType;
+export function mapProducts(products: ProductCmsListItem[]): ProductDto[] {
+  return products.map(mapProduct);
 }
 
 function mapFaqSummaries(
-  faqs: Record<string, unknown>[] | null | undefined,
+  faqs: CmsFaqDocument[] | null | undefined,
 ): ProductFaqSummaryDto[] {
-  if (!faqs?.length) {
-    return [];
-  }
+  if (!faqs?.length) return [];
 
-  return faqs.flatMap((faq) => {
-    if (typeof faq.documentId !== 'string') {
-      return [];
-    }
-
-    return [
-      removeUndefined({
-        documentId: faq.documentId,
-        question: getString(faq.question),
-      }),
-    ];
-  });
+  return faqs.map(({ documentId, question }) =>
+    removeUndefined({
+      documentId,
+      question: question ?? undefined,
+    }),
+  );
 }
 
 function mapPromotionSummaries(
-  promotions: Record<string, unknown>[] | null | undefined,
+  promotions: CmsPromotionDocument[] | null | undefined,
 ): ProductPromotionSummaryDto[] {
-  if (!promotions?.length) {
-    return [];
-  }
+  if (!promotions?.length) return [];
 
-  return promotions.flatMap((promotion) => {
-    if (typeof promotion.documentId !== 'string') {
-      return [];
-    }
-
-    return [
-      removeUndefined({
-        documentId: promotion.documentId,
-        title: getString(promotion.title),
-        slug: getString(promotion.slug),
-      }),
-    ];
-  });
+  return promotions.map(({ documentId, title, slug }) =>
+    removeUndefined({
+      documentId,
+      title: title ?? undefined,
+      slug: slug ?? undefined,
+    }),
+  );
 }

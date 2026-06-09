@@ -1,69 +1,91 @@
+import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
-  getArray,
-  getString,
   mapMediaArray,
+  mapRelationSummaries,
   removeUndefined,
-} from '../shared/strapi-mapper';
+  stripInternalFields,
+} from '../../common/utils/cms-mapper';
+import { mapTag } from '../tags/tags.mapper';
 import type {
   PromotionDto,
   PromotionProductSummaryDto,
+  PromotionCustomerSegment,
+  PromotionApplicableCard,
+  PromotionTargetAudience,
 } from './promotions.dto';
 
-export interface PromotionStrapiEntity {
-  documentId: string;
-  title?: string | null;
-  slug?: string | null;
-  short_description?: string | null;
-  content?: unknown;
-  start_date?: string | null;
-  end_date?: string | null;
-  cta_label?: string | null;
-  cta_link?: string | null;
-  banner?: unknown;
-  products?: Record<string, unknown>[] | null;
-  [key: string]: unknown;
+export type PromotionCmsEntity =
+  operations['promotion/get/promotions_by_id']['responses'][200]['content']['application/json']['data'];
+
+export type PromotionCmsListItem =
+  operations['promotion/get/promotions']['responses'][200]['content']['application/json']['data'][number];
+
+type CmsPromotion = PromotionCmsEntity | PromotionCmsListItem;
+
+type CmsProductDocument = components['schemas']['ApiProductProductDocument'];
+type CmsProductCategoryDocument = components['schemas']['ApiProductCategoryProductCategoryDocument'];
+
+const VALID_CUSTOMER_SEGMENTS = new Set<string>(['individual', 'corporate', 'priority', 'all']);
+const VALID_APPLICABLE_CARDS = new Set<string>(['Visa', 'Mastercard', 'JCB']);
+const VALID_TARGET_AUDIENCES = new Set<string>(['Cá nhân', 'Doanh nghiệp', 'Tất cả']);
+
+function mapPromotionEnum<T extends string>(
+  value: string | null | undefined,
+  validValues: Set<string>,
+): T | undefined {
+  if (!value || !validValues.has(value)) return undefined;
+  return value as T;
 }
 
-export function mapPromotion(promotion: PromotionStrapiEntity): PromotionDto {
+export function mapPromotion(promotion: CmsPromotion): PromotionDto {
   return removeUndefined({
     documentId: promotion.documentId,
-    title: promotion.title ?? undefined,
-    slug: promotion.slug ?? undefined,
+    title: promotion.title,
+    slug: promotion.slug,
     shortDescription: promotion.short_description ?? undefined,
-    content: getArray(promotion.content),
+    content: promotion.content?.map(stripInternalFields),
     startDate: promotion.start_date ?? undefined,
     endDate: promotion.end_date ?? undefined,
     ctaLabel: promotion.cta_label ?? undefined,
     ctaLink: promotion.cta_link ?? undefined,
+    ctaUrl: promotion.ctaUrl ?? undefined,
+    customerSegment: mapPromotionEnum<PromotionCustomerSegment>(promotion.customerSegment, VALID_CUSTOMER_SEGMENTS),
+    applicableCards: mapPromotionEnum<PromotionApplicableCard>(promotion.applicableCards, VALID_APPLICABLE_CARDS),
+    targetAudience: mapPromotionEnum<PromotionTargetAudience>(promotion.targetAudience, VALID_TARGET_AUDIENCES),
+    tags: promotion.tags?.map(mapTag),
+    priority: promotion.priority ?? undefined,
+    isFeatured: promotion.isFeatured ?? undefined,
+    displayLocations: promotion.displayLocations ?? undefined,
+    termsConditions: promotion.termsConditions?.map(stripInternalFields),
+    seo: promotion.seo ? stripInternalFields(promotion.seo) : undefined,
+    publishedDate: promotion.publishedDate ?? undefined,
     banner: mapMediaArray(promotion.banner),
     products: mapProductSummaries(promotion.products),
+    applicableProducts: mapProductSummaries(promotion.applicableProducts),
+    categories: mapRelationSummaries(promotion.categories),
   });
 }
 
-export function mapPromotions(
-  promotions: PromotionStrapiEntity[],
-): PromotionDto[] {
-  return promotions.map((promotion) => mapPromotion(promotion));
+export function mapPromotions(promotions: PromotionCmsListItem[]): PromotionDto[] {
+  return promotions.map(mapPromotion);
 }
 
 function mapProductSummaries(
-  products: Record<string, unknown>[] | null | undefined,
+  products: CmsProductDocument[] | null | undefined,
 ): PromotionProductSummaryDto[] {
-  if (!products?.length) {
-    return [];
-  }
+  if (!products?.length) return [];
 
-  return products.flatMap((product) => {
-    if (typeof product.documentId !== 'string') {
-      return [];
-    }
+  return products.map(({ documentId, name, slug }) =>
+    removeUndefined({
+      documentId,
+      name: name ?? undefined,
+      slug: slug ?? undefined,
+    }),
+  );
+}
 
-    return [
-      removeUndefined({
-        documentId: product.documentId,
-        name: getString(product.name),
-        slug: getString(product.slug),
-      }),
-    ];
-  });
+function mapCategorySummaries(
+  categories: CmsProductCategoryDocument[] | null | undefined,
+) {
+  return mapRelationSummaries(categories);
 }

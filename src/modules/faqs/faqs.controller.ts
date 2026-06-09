@@ -3,10 +3,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SuccessEnvelopeDto, ErrorEnvelopeDto } from '../../common/dto';
 import { EmptyQueryDto, ListQueryDto } from '../../common/query';
 import type { RequestWithId } from '../../common/http/request-with-id';
-import { buildListMeta, buildRequestMeta } from '../shared/response-envelope';
+import { createSuccessEnvelope } from '../../common/utils/response-envelope';
 import { FaqsService } from './faqs.service';
-import type { FaqDto } from './faqs.mapper';
-import { FaqDto as FaqSwaggerDto } from './faqs.swagger.dto';
+import type { FaqDto } from './faqs.dto';
 
 @ApiTags('FAQs')
 @Controller('faqs')
@@ -18,7 +17,6 @@ export class FaqsController {
   @ApiResponse({
     status: 200,
     description: 'List of FAQs retrieved successfully',
-    type: () => SuccessEnvelopeDto<FaqSwaggerDto[]>,
   })
   @ApiResponse({
     status: 400,
@@ -40,11 +38,7 @@ export class FaqsController {
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<FaqDto[]>> {
     const response = await this.faqsService.findAll(query);
-
-    return new SuccessEnvelopeDto(
-      response.data,
-      buildListMeta(request, response),
-    );
+    return createSuccessEnvelope(request, response.data, response.pagination);
   }
 
   @Get(':documentId')
@@ -52,12 +46,10 @@ export class FaqsController {
   @ApiParam({
     name: 'documentId',
     description: 'FAQ document ID',
-    example: 'faq-001',
   })
   @ApiResponse({
     status: 200,
     description: 'FAQ retrieved successfully',
-    type: () => SuccessEnvelopeDto<FaqSwaggerDto>,
   })
   @ApiResponse({
     status: 400,
@@ -89,8 +81,9 @@ export class FaqsController {
     @Query() _query: EmptyQueryDto,
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<FaqDto>> {
-    const faq = await this.faqsService.findOne(documentId);
-
-    return new SuccessEnvelopeDto(faq, buildRequestMeta(request));
+    return createSuccessEnvelope(
+      request,
+      await this.faqsService.findOne(documentId),
+    );
   }
 }

@@ -1,38 +1,41 @@
-import { removeUndefined, sanitizePublicValue } from '../shared/strapi-mapper';
+import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import { removeUndefined, sanitizePublicValue } from '../../common/utils/cms-mapper';
+import {
+  PageTemplate,
+  PageWorkflowState,
+  type PageDto,
+} from './pages.dto';
 
-export interface StrapiPage {
-  documentId: string;
-  title?: string | null;
-  description?: string | null;
-  slug?: string | null;
-  template?: string | null;
-  workflowState?: string | null;
-  publishDate?: string | null;
-  sections?: unknown[] | null;
-}
+export type CmsPage =
+  operations['page/get/pages_by_id']['responses'][200]['content']['application/json']['data'];
 
-export interface PageDto {
-  documentId: string;
-  title?: string;
-  description?: string;
-  slug?: string;
-  template?: string;
-  workflowState?: string;
-  publishDate?: string;
-  sections: unknown[];
-}
+export type CmsPageListItem =
+  operations['page/get/pages']['responses'][200]['content']['application/json']['data'][number];
 
-export function mapPage(page: StrapiPage): PageDto {
+const PAGE_TEMPLATES = new Set<string>(Object.values(PageTemplate));
+const PAGE_WORKFLOW_STATES = new Set<string>(Object.values(PageWorkflowState));
+
+export function mapPage(page: CmsPage | CmsPageListItem): PageDto {
   return removeUndefined({
     documentId: page.documentId,
-    title: page.title ?? undefined,
+    title: page.title,
     description: page.description ?? undefined,
-    slug: page.slug ?? undefined,
-    template: page.template ?? undefined,
-    workflowState: page.workflowState ?? undefined,
+    slug: page.slug,
+    template: mapEnum(page.template, PAGE_TEMPLATES) as PageTemplate | undefined,
+    workflowState: mapEnum(page.workflowState, PAGE_WORKFLOW_STATES) as PageWorkflowState | undefined,
     publishDate: page.publishDate ?? undefined,
     sections: Array.isArray(page.sections)
       ? page.sections.map((section) => sanitizePublicValue(section))
       : [],
   });
+}
+
+function mapEnum(
+  value: string | null | undefined,
+  validValues: Set<string>,
+): string | undefined {
+  if (!value || !validValues.has(value)) {
+    return undefined;
+  }
+  return value;
 }

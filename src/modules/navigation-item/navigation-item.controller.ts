@@ -3,10 +3,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SuccessEnvelopeDto, ErrorEnvelopeDto } from '../../common/dto';
 import type { RequestWithId } from '../../common/http/request-with-id';
 import { EmptyQueryDto, ListQueryDto } from '../../common/query';
-import { buildListMeta, buildRequestMeta } from '../shared/response-envelope';
-import type { NavigationItemDto } from './navigation-item.mapper';
+import { createSuccessEnvelope } from '../../common/utils/response-envelope';
+import type { NavigationItemDto } from './navigation-item.dto';
 import { NavigationItemService } from './navigation-item.service';
-import { NavigationItemDto as NavigationItemSwaggerDto } from './navigation-item.swagger.dto';
 
 @ApiTags('Navigation')
 @Controller('navigation-items')
@@ -18,7 +17,6 @@ export class NavigationItemController {
   @ApiResponse({
     status: 200,
     description: 'List of navigation items retrieved successfully',
-    type: () => SuccessEnvelopeDto<NavigationItemSwaggerDto[]>,
   })
   @ApiResponse({
     status: 400,
@@ -40,10 +38,7 @@ export class NavigationItemController {
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<NavigationItemDto[]>> {
     const response = await this.navigationItemService.findAll(query);
-    return new SuccessEnvelopeDto(
-      response.data,
-      buildListMeta(request, response),
-    );
+    return createSuccessEnvelope(request, response.data, response.pagination);
   }
 
   @Get(':documentId')
@@ -51,12 +46,10 @@ export class NavigationItemController {
   @ApiParam({
     name: 'documentId',
     description: 'Navigation item document ID',
-    example: 'nav-item-001',
   })
   @ApiResponse({
     status: 200,
     description: 'Navigation item retrieved successfully',
-    type: () => SuccessEnvelopeDto<NavigationItemSwaggerDto>,
   })
   @ApiResponse({
     status: 400,
@@ -88,7 +81,9 @@ export class NavigationItemController {
     @Query() _query: EmptyQueryDto,
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<NavigationItemDto>> {
-    const data = await this.navigationItemService.findOne(documentId);
-    return new SuccessEnvelopeDto(data, buildRequestMeta(request));
+    return createSuccessEnvelope(
+      request,
+      await this.navigationItemService.findOne(documentId),
+    );
   }
 }

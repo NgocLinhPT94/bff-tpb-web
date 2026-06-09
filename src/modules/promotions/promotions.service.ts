@@ -1,31 +1,39 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ListQueryDto } from '../../common/query';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
+import type { PaginationMeta } from '../../common/dto';
+import type { ListQueryDto } from '../../common/query';
+import { CmsClient } from '../../integrations/cms/cms.client';
 import type {
-  StrapiListResponse,
-  StrapiSingleResponse,
-} from '../shared/strapi-mapper';
+  CmsListResponse,
+  CmsSingleResponse,
+} from '../../common/utils/cms-mapper';
 import type { PromotionDto } from './promotions.dto';
 import {
   mapPromotion,
   mapPromotions,
-  type PromotionStrapiEntity,
+  type PromotionCmsEntity,
 } from './promotions.mapper';
 
 const PROMOTION_POPULATE_PARAMS = {
-  'populate[0]': 'products',
-  'populate[1]': 'banner',
+  'populate[banner]': true,
+  'populate[tags]': true,
+  'populate[products]': true,
+  'populate[applicableProducts]': true,
+  'populate[categories]': true,
+  'populate[seo][populate]': '*',
 } as const;
+
+interface PromotionListResult {
+  data: PromotionDto[];
+  pagination?: PaginationMeta;
+}
 
 @Injectable()
 export class PromotionsService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
-  async findAll(
-    query: ListQueryDto,
-  ): Promise<StrapiListResponse<PromotionDto>> {
-    const response = await this.strapiClient.get<
-      StrapiListResponse<PromotionStrapiEntity>
+  async findAll(query: ListQueryDto): Promise<PromotionListResult> {
+    const response = await this.cmsClient.get<
+      CmsListResponse<PromotionCmsEntity>
     >('/promotions', {
       params: {
         ...PROMOTION_POPULATE_PARAMS,
@@ -37,13 +45,13 @@ export class PromotionsService {
 
     return {
       data: mapPromotions(response.data),
-      meta: response.meta,
+      pagination: response.meta?.pagination,
     };
   }
 
   async findOne(documentId: string): Promise<PromotionDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<PromotionStrapiEntity>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<PromotionCmsEntity>
     >(`/promotions/${documentId}`, {
       params: PROMOTION_POPULATE_PARAMS,
     });

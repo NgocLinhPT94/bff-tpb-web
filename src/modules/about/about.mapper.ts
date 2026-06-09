@@ -1,18 +1,11 @@
-import { removeUndefined, sanitizePublicValue } from '../shared/strapi-mapper';
+import { removeUndefined, sanitizePublicValue } from '../../common/utils/cms-mapper';
+import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { AboutDto } from './about.dto';
 
-export interface StrapiAbout {
-  documentId: string;
-  title?: string | null;
-  blocks?: unknown[] | null;
-}
+export type CmsAbout =
+  operations['about/get/about']['responses'][200]['content']['application/json']['data'];
 
-export interface AboutDto {
-  documentId: string;
-  title?: string;
-  blocks: unknown[];
-}
-
-export function mapAbout(about: StrapiAbout): AboutDto {
+export function mapAbout(about: CmsAbout): AboutDto {
   return removeUndefined({
     documentId: about.documentId,
     title: about.title ?? undefined,

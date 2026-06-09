@@ -1,51 +1,42 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MediaSummaryDto } from '../../common/swagger/common.swagger.dto';
+import { MediaSummarySwaggerDto } from '../../common/swagger/common.swagger.dto.js';
 
 /**
  * Navigation item summary DTO for Swagger documentation.
  */
-export class NavigationItemSummaryDto {
+export class NavigationItemSummarySwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'nav-item-001',
   })
   documentId!: string;
 
-  @ApiPropertyOptional({
-    description: 'Navigation item name',
-    example: 'Products',
-  })
+  @ApiPropertyOptional({ description: 'Navigation item name', example: 'personal-banking' })
   name?: string;
 
-  @ApiPropertyOptional({
-    description: 'Navigation item title',
-    example: 'Our Products',
-  })
+  @ApiPropertyOptional({ description: 'Display title', example: 'Personal Banking' })
   title?: string;
 
-  @ApiPropertyOptional({
-    description: 'Navigation URL',
-    example: '/products',
-  })
+  @ApiPropertyOptional({ description: 'Navigation URL', example: '/personal-banking' })
   url?: string;
 
-  @ApiPropertyOptional({
-    description: 'Sort order',
-    example: 1,
-  })
+  @ApiPropertyOptional({ description: 'Sort order', example: 1 })
   order?: number;
 
+  @ApiPropertyOptional({ description: 'Navigation item icon', type: MediaSummarySwaggerDto })
+  icon?: MediaSummarySwaggerDto;
+
   @ApiPropertyOptional({
-    description: 'Navigation item icon',
-    type: MediaSummaryDto,
+    description: 'Child navigation items',
+    type: () => [NavigationItemSummarySwaggerDto],
   })
-  icon?: MediaSummaryDto;
+  children?: NavigationItemSummarySwaggerDto[];
 }
 
 /**
- * Link DTO for Swagger documentation.
+ * Navigation link DTO for Swagger documentation.
  */
-export class LinkDto {
+export class NavigationLinkSwaggerDto {
   @ApiPropertyOptional({
     description: 'Link label',
     example: 'Facebook',
@@ -72,24 +63,24 @@ export class LinkDto {
 
   @ApiPropertyOptional({
     description: 'Link icon',
-    type: MediaSummaryDto,
+    type: MediaSummarySwaggerDto,
   })
-  icon?: MediaSummaryDto;
+  icon?: MediaSummarySwaggerDto;
 }
 
 /**
- * Button DTO for Swagger documentation.
+ * Navigation button DTO for Swagger documentation.
  */
-export class ButtonDto {
+export class NavigationButtonSwaggerDto {
   @ApiPropertyOptional({
     description: 'Button label',
-    example: 'Contact Us',
+    example: 'Open Account',
   })
   label?: string;
 
   @ApiPropertyOptional({
     description: 'Button URL',
-    example: '/contact',
+    example: '/open-account',
   })
   url?: string;
 
@@ -103,7 +94,7 @@ export class ButtonDto {
 /**
  * Navigation DTO for Swagger documentation.
  */
-export class NavigationDto {
+export class NavigationSwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'nav-001',
@@ -112,13 +103,14 @@ export class NavigationDto {
 
   @ApiPropertyOptional({
     description: 'Navigation name',
-    example: 'Main Menu',
+    example: 'main-navigation',
   })
   name?: string;
 
   @ApiPropertyOptional({
     description: 'Menu type identifier',
-    example: 'main',
+    enum: ['header', 'footer', 'mobile', 'h-khcc', 'f-khcc'],
+    example: 'header',
   })
   type_menu?: string;
 
@@ -130,19 +122,19 @@ export class NavigationDto {
 
   @ApiProperty({
     description: 'Navigation items',
-    type: [NavigationItemSummaryDto],
+    type: [NavigationItemSummarySwaggerDto],
   })
-  navigation_items!: NavigationItemSummaryDto[];
+  navigation_items!: NavigationItemSummarySwaggerDto[];
 
   @ApiProperty({
-    description: 'Social share icons',
-    type: [LinkDto],
+    description: 'Social/share icon links',
+    type: [NavigationLinkSwaggerDto],
   })
-  iconshare!: LinkDto[];
+  iconshare!: NavigationLinkSwaggerDto[];
 
   @ApiProperty({
-    description: 'Call-to-action buttons',
-    type: [ButtonDto],
+    description: 'Shared buttons',
+    type: [NavigationButtonSwaggerDto],
   })
-  ButtonShare!: ButtonDto[];
+  ButtonShare!: NavigationButtonSwaggerDto[];
 }

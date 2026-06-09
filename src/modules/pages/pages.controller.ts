@@ -3,10 +3,9 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { SuccessEnvelopeDto, ErrorEnvelopeDto } from '../../common/dto';
 import type { RequestWithId } from '../../common/http/request-with-id';
 import { EmptyQueryDto, ListQueryDto } from '../../common/query';
-import { buildListMeta, buildRequestMeta } from '../shared/response-envelope';
-import type { PageDto } from './pages.mapper';
+import { createSuccessEnvelope } from '../../common/utils/response-envelope';
+import type { PageDto } from './pages.dto';
 import { PagesService } from './pages.service';
-import { PageDto as PageSwaggerDto } from './pages.swagger.dto';
 
 @ApiTags('Pages')
 @Controller('pages')
@@ -18,7 +17,6 @@ export class PagesController {
   @ApiResponse({
     status: 200,
     description: 'List of pages retrieved successfully',
-    type: () => SuccessEnvelopeDto<PageSwaggerDto[]>,
   })
   @ApiResponse({
     status: 400,
@@ -39,10 +37,11 @@ export class PagesController {
     @Query() query: ListQueryDto,
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<PageDto[]>> {
-    const response = await this.pagesService.findAll(query);
-    return new SuccessEnvelopeDto(
+    const response = await this.pagesService.findAll(query, request.isDraft);
+    return createSuccessEnvelope(
+      request,
       response.data,
-      buildListMeta(request, response),
+      response.pagination,
     );
   }
 
@@ -51,12 +50,10 @@ export class PagesController {
   @ApiParam({
     name: 'documentId',
     description: 'Page document ID',
-    example: 'page-001',
   })
   @ApiResponse({
     status: 200,
     description: 'Page retrieved successfully',
-    type: () => SuccessEnvelopeDto<PageSwaggerDto>,
   })
   @ApiResponse({
     status: 400,
@@ -88,7 +85,9 @@ export class PagesController {
     @Query() _query: EmptyQueryDto,
     @Req() request: RequestWithId,
   ): Promise<SuccessEnvelopeDto<PageDto>> {
-    const data = await this.pagesService.findOne(documentId);
-    return new SuccessEnvelopeDto(data, buildRequestMeta(request));
+    return createSuccessEnvelope(
+      request,
+      await this.pagesService.findOne(documentId, request.isDraft),
+    );
   }
 }

@@ -12,6 +12,8 @@ describe('articles mapper', () => {
       ],
       slug: 'market-update',
       publish_date: '2026-05-11T00:00:00.000Z',
+      articleType: 'news',
+      customerSegment: 'individual',
       cover: {
         id: 10,
         documentId: 'cover-1',
@@ -19,6 +21,9 @@ describe('articles mapper', () => {
         alternativeText: 'Cover',
         provider_metadata: { internal: true },
       },
+      tags: [
+        { documentId: 'tag-1', name: 'Digital Banking', slug: 'digital-banking', articles: [] },
+      ],
       author: {
         id: 2,
         documentId: 'author-1',
@@ -41,10 +46,13 @@ describe('articles mapper', () => {
       content: [{ type: 'paragraph', children: [{ text: 'Read more' }] }],
       slug: 'market-update',
       publish_date: '2026-05-11T00:00:00.000Z',
+      articleType: 'news',
+      customerSegment: 'individual',
       cover: {
         url: '/uploads/cover.png',
         alternativeText: 'Cover',
       },
+      tags: [{ documentId: 'tag-1', name: 'Digital Banking', slug: 'digital-banking' }],
       author: {
         documentId: 'author-1',
         name: 'Jane Writer',
@@ -60,12 +68,16 @@ describe('articles mapper', () => {
     expect(
       mapArticle({
         documentId: 'article-2',
+        content: [],
+        customerSegment: 'all',
         cover: null,
         author: null,
-        category: { data: null },
+        category: null,
       }),
     ).toEqual({
       documentId: 'article-2',
+      content: [],
+      customerSegment: 'all',
       cover: null,
       author: null,
       category: null,
@@ -74,12 +86,18 @@ describe('articles mapper', () => {
     expect(
       mapArticle({
         documentId: 'article-3',
-        author: { documentId: 'author-3', articles: [] },
+        content: [],
+        customerSegment: 'all',
+        tags: [],
+        author: { documentId: 'author-3', name: 'Author', articles: [] },
         category: { documentId: 'category-3', articles: [], faqs: [] },
       }),
     ).toEqual({
       documentId: 'article-3',
-      author: { documentId: 'author-3' },
+      content: [],
+      customerSegment: 'all',
+      tags: [],
+      author: { documentId: 'author-3', name: 'Author' },
       category: { documentId: 'category-3' },
     });
   });

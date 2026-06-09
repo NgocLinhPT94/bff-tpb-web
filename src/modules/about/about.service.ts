@@ -1,17 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
-import type { StrapiSingleResponse } from '../shared/strapi-mapper';
-import { mapAbout, type AboutDto, type StrapiAbout } from './about.mapper';
+import { CmsClient } from '../../integrations/cms/cms.client';
+import type { CmsSingleResponse } from '../../common/utils/cms-mapper';
+import { mapAbout, type CmsAbout } from './about.mapper';
+import type { AboutDto } from './about.dto';
 
 const ABOUT_POPULATE = 'blocks';
 
 @Injectable()
 export class AboutService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
   async findOne(): Promise<AboutDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiAbout>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<CmsAbout>
     >('/about', {
       params: { populate: ABOUT_POPULATE },
     });

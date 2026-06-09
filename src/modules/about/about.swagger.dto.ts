@@ -3,7 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 /**
  * About page DTO for Swagger documentation.
  */
-export class AboutDto {
+export class AboutSwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'about-001',
@@ -16,9 +16,9 @@ export class AboutDto {
   })
   title?: string;
 
-  @ApiProperty({
-    description: 'Page content blocks',
-    example: [{ type: 'section', title: 'Our Story', content: '...' }],
+  @ApiPropertyOptional({
+    description: 'Dynamic content blocks',
+    example: [{ type: 'rich-text', content: 'TPBank was founded in...' }],
   })
-  blocks!: unknown[];
+  blocks?: unknown[];
 }

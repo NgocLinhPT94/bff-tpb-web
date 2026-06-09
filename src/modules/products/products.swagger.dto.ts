@@ -1,10 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MediaSummaryDto } from '../../common/swagger/common.swagger.dto';
+import { MediaSummarySwaggerDto } from '../../common/swagger/common.swagger.dto.js';
 
 /**
  * Product FAQ summary DTO for Swagger documentation.
  */
-export class ProductFaqSummaryDto {
+export class ProductFaqSummarySwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'faq-001',
@@ -21,7 +21,7 @@ export class ProductFaqSummaryDto {
 /**
  * Product promotion summary DTO for Swagger documentation.
  */
-export class ProductPromotionSummaryDto {
+export class ProductPromotionSummarySwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'promo-001',
@@ -44,7 +44,7 @@ export class ProductPromotionSummaryDto {
 /**
  * Product DTO for Swagger documentation.
  */
-export class ProductDto {
+export class ProductSwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'product-001',
@@ -78,31 +78,31 @@ export class ProductDto {
 
   @ApiPropertyOptional({
     description: 'Thumbnail image',
-    type: MediaSummaryDto,
+    type: MediaSummarySwaggerDto,
   })
-  thumbnail?: MediaSummaryDto;
+  thumbnail?: MediaSummarySwaggerDto;
 
   @ApiPropertyOptional({
     description: 'Main banner image',
-    type: MediaSummaryDto,
+    type: MediaSummarySwaggerDto,
   })
-  mainBanner?: MediaSummaryDto;
+  mainBanner?: MediaSummarySwaggerDto;
 
   @ApiProperty({
     description: 'Product documents and brochures',
-    type: [MediaSummaryDto],
+    type: [MediaSummarySwaggerDto],
   })
-  documents!: MediaSummaryDto[];
+  documents!: MediaSummarySwaggerDto[];
 
   @ApiProperty({
     description: 'Related FAQs',
-    type: [ProductFaqSummaryDto],
+    type: [ProductFaqSummarySwaggerDto],
   })
-  faqs!: ProductFaqSummaryDto[];
+  faqs!: ProductFaqSummarySwaggerDto[];
 
   @ApiProperty({
     description: 'Active promotions',
-    type: [ProductPromotionSummaryDto],
+    type: [ProductPromotionSummarySwaggerDto],
   })
-  promotions!: ProductPromotionSummaryDto[];
+  promotions!: ProductPromotionSummarySwaggerDto[];
 }

@@ -1,32 +1,46 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ListQueryDto } from '../../common/query';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
+import type { PaginationMeta } from '../../common/dto';
+import type { ListQueryDto } from '../../common/query';
+import { CmsClient } from '../../integrations/cms/cms.client';
 import type {
-  StrapiListResponse,
-  StrapiSingleResponse,
-} from '../shared/strapi-mapper';
+  CmsListResponse,
+  CmsSingleResponse,
+} from '../../common/utils/cms-mapper';
 import {
   mapProduct,
   mapProducts,
-  type ProductStrapiEntity,
+  type ProductCmsEntity,
 } from './products.mapper';
 import type { ProductDto } from './products.dto';
 
 const PRODUCT_POPULATE_PARAMS = {
-  'populate[0]': 'thumbnail',
-  'populate[1]': 'main_banner',
-  'populate[2]': 'documents',
-  'populate[3]': 'faqs',
-  'populate[4]': 'promotions',
+  'populate[thumbnail]': true,
+  'populate[main_banner]': true,
+  'populate[coverImage]': true,
+  'populate[images]': true,
+  'populate[documents]': true,
+  'populate[seo][populate]': '*',
+  'populate[tags]': true,
+  'populate[category]': true,
+  'populate[relatedProducts]': true,
+  'populate[relatedArticles]': true,
+  'populate[applicablePromotions]': true,
+  'populate[faqs]': true,
+  'populate[promotions]': true,
 } as const;
+
+interface ProductListResult {
+  data: ProductDto[];
+  pagination?: PaginationMeta;
+}
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
-  async findAll(query: ListQueryDto): Promise<StrapiListResponse<ProductDto>> {
-    const response = await this.strapiClient.get<
-      StrapiListResponse<ProductStrapiEntity>
+  async findAll(query: ListQueryDto): Promise<ProductListResult> {
+    const response = await this.cmsClient.get<
+      CmsListResponse<ProductCmsEntity>
     >('/products', {
       params: {
         ...PRODUCT_POPULATE_PARAMS,
@@ -38,13 +52,13 @@ export class ProductsService {
 
     return {
       data: mapProducts(response.data),
-      meta: response.meta,
+      pagination: response.meta?.pagination,
     };
   }
 
   async findOne(documentId: string): Promise<ProductDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<ProductStrapiEntity>
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<ProductCmsEntity>
     >(`/products/${documentId}`, {
       params: PRODUCT_POPULATE_PARAMS,
     });

@@ -1,18 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { PaginationMeta } from '../../common/dto';
 import type { ListQueryDto } from '../../common/query';
-import { StrapiClient } from '../../infrastructure/strapi/strapi.client';
-import { mapArticle, mapArticles, type ArticleDto } from './articles.mapper';
-import type {
-  StrapiEntity,
-  StrapiListResponse,
-  StrapiSingleResponse,
-} from '../shared/strapi-mapper';
+import { CmsClient } from '../../integrations/cms/cms.client';
+import { mapArticle, mapArticles, type CmsArticle, type CmsArticleListItem } from './articles.mapper';
+import type { ArticleDto } from './articles.dto';
+import type { CmsListResponse, CmsSingleResponse } from '../../common/utils/cms-mapper';
 
 const ARTICLES_POPULATE_PARAMS = {
   'populate[cover]': true,
+  'populate[thumbnail]': true,
+  'populate[attachments]': true,
+  'populate[tags]': true,
   'populate[author][populate]': 'avatar',
   'populate[category]': true,
+  'populate[blocks][populate]': '*',
+  'populate[seo][populate]': '*',
+  'populate[relatedProducts]': true,
+  'populate[relatedArticles][populate]': 'cover',
 } as const;
 
 interface ArticleListResult {
@@ -22,11 +26,11 @@ interface ArticleListResult {
 
 @Injectable()
 export class ArticlesService {
-  constructor(private readonly strapiClient: StrapiClient) {}
+  constructor(private readonly cmsClient: CmsClient) {}
 
-  async findAll(query: ListQueryDto): Promise<ArticleListResult> {
-    const response = await this.strapiClient.get<
-      StrapiListResponse<StrapiEntity>
+  async findAll(query: ListQueryDto, isDraft = false): Promise<ArticleListResult> {
+    const response = await this.cmsClient.get<
+      CmsListResponse<CmsArticleListItem>
     >('/articles', {
       params: {
         'pagination[page]': query.page,
@@ -34,6 +38,7 @@ export class ArticlesService {
         sort: query.sort,
         ...ARTICLES_POPULATE_PARAMS,
       },
+      isDraft,
     });
 
     return {
@@ -42,11 +47,12 @@ export class ArticlesService {
     };
   }
 
-  async findOne(documentId: string): Promise<ArticleDto> {
-    const response = await this.strapiClient.get<
-      StrapiSingleResponse<StrapiEntity>
+  async findOne(documentId: string, isDraft = false): Promise<ArticleDto> {
+    const response = await this.cmsClient.get<
+      CmsSingleResponse<CmsArticle>
     >(`/articles/${documentId}`, {
       params: ARTICLES_POPULATE_PARAMS,
+      isDraft,
     });
 
     if (!response.data) {

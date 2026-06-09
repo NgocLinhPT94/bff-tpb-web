@@ -61,14 +61,14 @@ describe('products mapper', () => {
       mainBanner: {
         url: '/uploads/banner.png',
       },
+      images: [],
       documents: [{ url: '/uploads/terms.pdf' }],
+      relatedProducts: [],
+      relatedArticles: [],
+      applicablePromotions: [],
       faqs: [{ documentId: 'faq-1', question: 'How do I apply?' }],
       promotions: [
-        {
-          documentId: 'promotion-1',
-          title: 'Summer offer',
-          slug: 'summer-offer',
-        },
+        { documentId: 'promotion-1', title: 'Summer offer', slug: 'summer-offer' },
       ],
     });
   });
@@ -84,7 +84,11 @@ describe('products mapper', () => {
     expect(result).toEqual({
       documentId: 'product-2',
       productType: ProductType.LOAN,
+      images: [],
       documents: [],
+      relatedProducts: [],
+      relatedArticles: [],
+      applicablePromotions: [],
       faqs: [],
       promotions: [],
     });
@@ -102,7 +106,11 @@ describe('products mapper', () => {
       }),
     ).toEqual({
       documentId: 'product-3',
+      images: [],
       documents: [],
+      relatedProducts: [],
+      relatedArticles: [],
+      applicablePromotions: [],
       faqs: [],
       promotions: [],
     });
