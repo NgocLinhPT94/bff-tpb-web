@@ -1,7 +1,7 @@
 import { ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { RequestMetaDto } from './RequestMetaDto';
+import { RequestMetaDto } from './request-meta.dto';
 
 /**
  * Success response envelope wrapper.

@@ -7,14 +7,10 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
  *
  * @example
  * // URL: ?page=2&pageSize=25
- * const pagination = new PaginationQueryDto();
- * pagination.page = 2;      // Parsed from query
- * pagination.pageSize = 25; // Parsed from query
  */
 export class PaginationQueryDto {
   /**
    * Page number (1-indexed).
-   * Must be an integer >= 1.
    * @default 1
    */
   @ApiPropertyOptional({
@@ -32,7 +28,7 @@ export class PaginationQueryDto {
 
   /**
    * Number of items per page.
-   * Must be an integer between 1 and 50.
+   * Must be between 1 and 50.
    * @default 20
    */
   @ApiPropertyOptional({

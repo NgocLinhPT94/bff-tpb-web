@@ -4,7 +4,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  * Media summary DTO for Swagger documentation.
  * Represents a media file (image, document) in the CMS.
  */
-export class MediaSummaryDto {
+export class MediaSummarySwaggerDto {
   @ApiPropertyOptional({
     description: 'Public URL to the file',
     example: 'https://cdn.example.com/uploads/banner-image.jpg',
@@ -40,7 +40,7 @@ export class MediaSummaryDto {
  * Relation summary DTO for Swagger documentation.
  * Represents a simplified reference to another entity.
  */
-export class RelationSummaryDto {
+export class RelationSummarySwaggerDto {
   @ApiProperty({
     description: 'Unique document identifier',
     example: 'abc123',
@@ -93,7 +93,7 @@ export class RelationSummaryDto {
 /**
  * SEO metadata DTO for Swagger documentation.
  */
-export class SeoDto {
+export class SeoSwaggerDto {
   @ApiPropertyOptional({
     description: 'Meta title for SEO',
     example: 'TPBank - Digital Banking Services',
@@ -108,16 +108,16 @@ export class SeoDto {
 
   @ApiPropertyOptional({
     description: 'Social share image',
-    type: MediaSummaryDto,
+    type: MediaSummarySwaggerDto,
   })
-  shareImage?: MediaSummaryDto;
+  shareImage?: MediaSummarySwaggerDto;
 }
 
 /**
  * Link DTO for Swagger documentation.
  * Used in navigation and footer links.
  */
-export class LinkDto {
+export class LinkSwaggerDto {
   @ApiPropertyOptional({
     description: 'Link label',
     example: 'Facebook',
@@ -144,15 +144,15 @@ export class LinkDto {
 
   @ApiPropertyOptional({
     description: 'Link icon',
-    type: MediaSummaryDto,
+    type: MediaSummarySwaggerDto,
   })
-  icon?: MediaSummaryDto;
+  icon?: MediaSummarySwaggerDto;
 }
 
 /**
  * Button DTO for Swagger documentation.
  */
-export class ButtonDto {
+export class ButtonSwaggerDto {
   @ApiPropertyOptional({
     description: 'Button label',
     example: 'Learn More',

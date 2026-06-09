@@ -18,14 +18,8 @@ export enum SortOption {
  *
  * @example
  * // URL: ?sort=publishedAt:desc
- * const sort = new SortQueryDto();
- * sort.sort = SortOption.PUBLISHED_AT_DESC;
  */
 export class SortQueryDto {
-  /**
-   * Sort order for the results.
-   * @default SortOption.PUBLISHED_AT_DESC
-   */
   @ApiPropertyOptional({
     description: 'Sort order for the results',
     enum: SortOption,

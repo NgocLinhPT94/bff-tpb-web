@@ -1,3 +1,3 @@
-export * from './ErrorEnvelopeDto';
-export * from './RequestMetaDto';
-export * from './SuccessEnvelopeDto';
+export * from './error-envelope.dto';
+export * from './request-meta.dto';
+export * from './success-envelope.dto';

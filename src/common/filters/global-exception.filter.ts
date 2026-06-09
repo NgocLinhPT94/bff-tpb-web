@@ -36,6 +36,10 @@ const statusMessageMap: Record<number, string> = {
   [HttpStatus.GATEWAY_TIMEOUT]: 'Upstream service timeout',
 };
 
+/**
+ * Global exception filter that catches all unhandled exceptions
+ * and returns a standardized error envelope response.
+ */
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {

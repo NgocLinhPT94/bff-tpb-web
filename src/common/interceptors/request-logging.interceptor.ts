@@ -9,6 +9,10 @@ import { PinoLogger } from 'nestjs-pino';
 import { Observable, tap } from 'rxjs';
 import type { RequestWithId } from '../http/request-with-id';
 
+/**
+ * Interceptor that logs request method, path, status code, duration, and requestId.
+ * Uses PinoLogger for structured JSON logging.
+ */
 @Injectable()
 export class RequestLoggingInterceptor implements NestInterceptor {
   constructor(private readonly logger: PinoLogger) {
@@ -23,22 +27,14 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
-        this.logRequest(request, response, startedAt);
+        this.logger.info({
+          method: request.method,
+          path: request.originalUrl,
+          status: response.statusCode,
+          duration: Date.now() - startedAt,
+          requestId: request.requestId,
+        });
       }),
     );
-  }
-
-  private logRequest(
-    request: RequestWithId,
-    response: Response,
-    startedAt: number,
-  ): void {
-    this.logger.info({
-      method: request.method,
-      path: request.originalUrl,
-      status: response.statusCode,
-      duration: Date.now() - startedAt,
-      requestId: request.requestId,
-    });
   }
 }
