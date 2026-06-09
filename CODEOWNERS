@@ -1,0 +1,25 @@
+# CODEOWNERS for tpb-web-bff
+# Each line defines the owner(s) for files matching the pattern.
+# Order matters: later patterns override earlier ones.
+
+# Default owner for all files
+*                                 @tpb-web/backend-team
+
+# Common utilities and shared code
+src/common/                       @tpb-web/backend-leads
+
+# Integration clients (CMS, CRM, Core Bank)
+src/integrations/                 @tpb-web/backend-leads
+
+# Configuration and environment
+src/config/                       @tpb-web/backend-leads @tpb-web/sre
+
+# Module-specific ownership
+src/modules/lead/                 @tpb-web/backend-team @tpb-web/crm-team
+src/modules/otp/                  @tpb-web/backend-team @tpb-web/security
+src/modules/captcha/              @tpb-web/backend-team @tpb-web/security
+
+# Dockerfile and deployment
+Dockerfile                        @tpb-web/sre @tpb-web/backend-leads
+Dockerfile.prod                   @tpb-web/sre @tpb-web/backend-leads
+.dockerignore                     @tpb-web/sre @tpb-web/backend-leads
