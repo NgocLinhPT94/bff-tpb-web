@@ -1,17 +1,16 @@
-import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { components } from '../../integrations/cms/generated/cms-schema.d.ts';
 import { mapCategory } from '../categories/categories.mapper';
 import {
   mapMediaSummary,
   removeUndefined,
   stripInternalFields,
 } from '../../common/utils/cms-mapper';
+import type { CmsOperationData } from '../../common/utils/cms-mapper';
 import type { FaqDto, ProductSummaryDto } from './faqs.dto';
 
-export type CmsFaq =
-  operations['faq/get/faqs_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsFaq = CmsOperationData<'faq/get/faqs_by_id'>;
 
-export type CmsFaqListItem =
-  operations['faq/get/faqs']['responses'][200]['content']['application/json']['data'][number];
+export type CmsFaqListItem = CmsOperationData<'faq/get/faqs'>[number];
 
 type CmsProductDocument = components['schemas']['ApiProductProductDocument'];
 

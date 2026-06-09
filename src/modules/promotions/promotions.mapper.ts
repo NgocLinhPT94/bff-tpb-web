@@ -1,10 +1,11 @@
-import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { components } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
   mapMediaArray,
   mapRelationSummaries,
   removeUndefined,
   stripInternalFields,
 } from '../../common/utils/cms-mapper';
+import type { CmsOperationData } from '../../common/utils/cms-mapper';
 import { mapTag } from '../tags/tags.mapper';
 import type {
   PromotionDto,
@@ -14,17 +15,14 @@ import type {
   PromotionTargetAudience,
 } from './promotions.dto';
 
-export type PromotionCmsEntity =
-  operations['promotion/get/promotions_by_id']['responses'][200]['content']['application/json']['data'];
+export type PromotionCmsEntity = CmsOperationData<'promotion/get/promotions_by_id'>;
 
-export type PromotionCmsListItem =
-  operations['promotion/get/promotions']['responses'][200]['content']['application/json']['data'][number];
+export type PromotionCmsListItem = CmsOperationData<'promotion/get/promotions'>[number];
 
 type CmsPromotion = PromotionCmsEntity | PromotionCmsListItem;
 
 type CmsProductDocument = components['schemas']['ApiProductProductDocument'];
 type CmsProductCategoryDocument = components['schemas']['ApiProductCategoryProductCategoryDocument'];
-
 const VALID_CUSTOMER_SEGMENTS = new Set<string>(['individual', 'corporate', 'priority', 'all']);
 const VALID_APPLICABLE_CARDS = new Set<string>(['Visa', 'Mastercard', 'JCB']);
 const VALID_TARGET_AUDIENCES = new Set<string>(['Cá nhân', 'Doanh nghiệp', 'Tất cả']);

@@ -1,12 +1,9 @@
-import { removeUndefined } from '../../common/utils/cms-mapper';
-import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import { removeUndefined, type CmsOperationData } from '../../common/utils/cms-mapper';
 import type { CategoryDto } from './categories.dto';
 
-export type CmsCategory =
-  operations['category/get/categories_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsCategory = CmsOperationData<'category/get/categories_by_id'>;
 
-export type CmsCategoryListItem =
-  operations['category/get/categories']['responses'][200]['content']['application/json']['data'][number];
+export type CmsCategoryListItem = CmsOperationData<'category/get/categories'>[number];
 
 export function mapCategory(entity: CmsCategory | CmsCategoryListItem): CategoryDto {
   return removeUndefined({

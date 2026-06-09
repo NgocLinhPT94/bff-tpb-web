@@ -1,4 +1,4 @@
-import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { components } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
   mapMedia,
   removeUndefined,
@@ -10,9 +10,9 @@ import type {
   LinkDto,
   ButtonDto,
 } from './navigation.dto';
+import type { CmsOperationData } from '../../common/utils/cms-mapper';
 
-export type CmsNavigation =
-  operations['navigation/get/navigations_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsNavigation = CmsOperationData<'navigation/get/navigations_by_id'>;
 
 type CmsNavigationItem = components['schemas']['ApiNavigationItemNavigationItemDocument'] & {
   children?: CmsNavigationItem[] | null;

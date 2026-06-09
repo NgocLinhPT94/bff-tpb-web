@@ -1,4 +1,11 @@
 import type { PaginationMeta } from '../dto/request-meta.dto';
+import type { SuccessResponseJSON } from 'openapi-typescript-helpers';
+import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+
+export type CmsOperationData<OperationId extends keyof operations> =
+  SuccessResponseJSON<operations[OperationId]> extends { data: infer Data }
+    ? Data
+    : never;
 
 export interface CmsListResponse<T> {
   data: T[];

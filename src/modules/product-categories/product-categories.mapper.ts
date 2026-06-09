@@ -1,18 +1,16 @@
-import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
   mapMediaArray,
   mapMediaSummary,
   mapRelationSummaries,
   removeUndefined,
   stripInternalFields,
+  type CmsOperationData,
 } from '../../common/utils/cms-mapper';
 import type { ProductCategoryDto } from './product-categories.dto';
 
-export type CmsProductCategory =
-  operations['product-category/get/product_categories_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsProductCategory = CmsOperationData<'product-category/get/product_categories_by_id'>;
 
-export type CmsProductCategoryListItem =
-  operations['product-category/get/product_categories']['responses'][200]['content']['application/json']['data'][number];
+export type CmsProductCategoryListItem = CmsOperationData<'product-category/get/product_categories'>[number];
 
 export function mapProductCategory(
   entity: CmsProductCategory | CmsProductCategoryListItem,

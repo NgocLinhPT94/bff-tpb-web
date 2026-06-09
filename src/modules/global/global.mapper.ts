@@ -1,13 +1,13 @@
-import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { components } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
+  type CmsOperationData,
   mapMedia,
   removeUndefined,
   sanitizePublicValue,
 } from '../../common/utils/cms-mapper';
 import type { GlobalDto, SeoDto } from './global.dto';
 
-export type CmsGlobal =
-  operations['global/get/global']['responses'][200]['content']['application/json']['data'];
+export type CmsGlobal = CmsOperationData<'global/get/global'>;
 
 type CmsSeo = components['schemas']['SharedSeoEntry'];
 

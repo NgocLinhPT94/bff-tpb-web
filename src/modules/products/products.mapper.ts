@@ -1,4 +1,4 @@
-import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { components } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
   mapMediaArray,
   mapMediaSummary,
@@ -7,6 +7,7 @@ import {
   removeUndefined,
   stripInternalFields,
 } from '../../common/utils/cms-mapper';
+import type { CmsOperationData } from '../../common/utils/cms-mapper';
 import { mapTag } from '../tags/tags.mapper';
 import {
   ProductType,
@@ -18,11 +19,9 @@ import {
   type ProductPromotionSummaryDto,
 } from './products.dto';
 
-export type ProductCmsEntity =
-  operations['product/get/products_by_id']['responses'][200]['content']['application/json']['data'];
+export type ProductCmsEntity = CmsOperationData<'product/get/products_by_id'>;
 
-export type ProductCmsListItem =
-  operations['product/get/products']['responses'][200]['content']['application/json']['data'][number];
+export type ProductCmsListItem = CmsOperationData<'product/get/products'>[number];
 
 type CmsProduct = ProductCmsEntity | ProductCmsListItem;
 

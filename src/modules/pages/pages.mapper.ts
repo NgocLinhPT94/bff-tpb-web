@@ -1,16 +1,13 @@
-import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
-import { removeUndefined, sanitizePublicValue } from '../../common/utils/cms-mapper';
+import { removeUndefined, sanitizePublicValue, type CmsOperationData } from '../../common/utils/cms-mapper';
 import {
   PageTemplate,
   PageWorkflowState,
   type PageDto,
 } from './pages.dto';
 
-export type CmsPage =
-  operations['page/get/pages_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsPage = CmsOperationData<'page/get/pages_by_id'>;
 
-export type CmsPageListItem =
-  operations['page/get/pages']['responses'][200]['content']['application/json']['data'][number];
+export type CmsPageListItem = CmsOperationData<'page/get/pages'>[number];
 
 const PAGE_TEMPLATES = new Set<string>(Object.values(PageTemplate));
 const PAGE_WORKFLOW_STATES = new Set<string>(Object.values(PageWorkflowState));

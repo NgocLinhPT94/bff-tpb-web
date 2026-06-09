@@ -1,5 +1,5 @@
-import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
 import {
+  type CmsOperationData,
   mapMedia,
   mapRelationSummary,
   mapRelationSummaries,
@@ -7,8 +7,7 @@ import {
 } from '../../common/utils/cms-mapper';
 import type { NavigationItemDto } from './navigation-item.dto';
 
-export type CmsNavigationItem =
-  operations['navigation-item/get/navigation_items_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsNavigationItem = CmsOperationData<'navigation-item/get/navigation_items_by_id'>;
 
 export const NAVIGATION_ITEM_MAX_CHILD_DEPTH = 5;
 

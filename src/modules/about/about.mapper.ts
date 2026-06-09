@@ -1,9 +1,7 @@
-import { removeUndefined, sanitizePublicValue } from '../../common/utils/cms-mapper';
-import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import { removeUndefined, sanitizePublicValue, type CmsOperationData } from '../../common/utils/cms-mapper';
 import type { AboutDto } from './about.dto';
 
-export type CmsAbout =
-  operations['about/get/about']['responses'][200]['content']['application/json']['data'];
+export type CmsAbout = CmsOperationData<'about/get/about'>;
 
 export function mapAbout(about: CmsAbout): AboutDto {
   return removeUndefined({

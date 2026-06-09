@@ -1,12 +1,10 @@
-import { mapMediaSummary, removeUndefined } from '../../common/utils/cms-mapper';
-import type { components, operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import { mapMediaSummary, removeUndefined, type CmsOperationData } from '../../common/utils/cms-mapper';
+import type { components } from '../../integrations/cms/generated/cms-schema.d.ts';
 import type { AuthorDto } from './authors.dto';
 
-export type CmsAuthor =
-  operations['author/get/authors_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsAuthor = CmsOperationData<'author/get/authors_by_id'>;
 
-export type CmsAuthorListItem =
-  operations['author/get/authors']['responses'][200]['content']['application/json']['data'][number];
+export type CmsAuthorListItem = CmsOperationData<'author/get/authors'>[number];
 
 export function mapAuthor(entity: CmsAuthor | CmsAuthorListItem): AuthorDto {
   const author: AuthorDto = removeUndefined({

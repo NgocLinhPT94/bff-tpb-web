@@ -1,4 +1,4 @@
-import type { operations } from '../../integrations/cms/generated/cms-schema.d.ts';
+import type { CmsOperationData } from '../../common/utils/cms-mapper';
 import { mapAuthor } from '../authors/authors.mapper';
 import { mapCategory } from '../categories/categories.mapper';
 import {
@@ -10,11 +10,9 @@ import {
 import { mapTag } from '../tags/tags.mapper';
 import type { ArticleDto } from './articles.dto';
 
-export type CmsArticle =
-  operations['article/get/articles_by_id']['responses'][200]['content']['application/json']['data'];
+export type CmsArticle = CmsOperationData<'article/get/articles_by_id'>;
 
-export type CmsArticleListItem =
-  operations['article/get/articles']['responses'][200]['content']['application/json']['data'][number];
+export type CmsArticleListItem = CmsOperationData<'article/get/articles'>[number];
 
 type CmsArticleUnion = CmsArticle | CmsArticleListItem;
 
