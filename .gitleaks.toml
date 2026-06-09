@@ -1,0 +1,12 @@
+# Gitleaks configuration for tpb-web-bff
+# Secret scanning policy placeholder
+# Pipeline execution is out of scope for this spec
+
+title = "tpb-web-bff gitleaks config"
+
+[allowlist]
+  description = "Global allowlist"
+  paths = [
+    '''(.*?)(jpg|gif|doc|pdf|bin|svg|socket)$''',
+    '''pnpm-lock\.yaml$''',
+  ]
