@@ -1,2 +1,10 @@
-process.env.STRAPI_BASE_URL = 'http://localhost:1337/api';
-process.env.NODE_ENV = 'test';
+process.env.CMS_BASE_URL = 'http://localhost:1337';
+process.env.CMS_API_TOKEN = 'test-token';
+process.env.CMS_TIMEOUT = '5000';
+process.env.CMS_RETRY_ATTEMPTS = '1';
+process.env.NODE_ENV = 'development';
+process.env.PORT = '3001';
+process.env.CORS_ORIGINS = 'http://localhost:3000';
+process.env.RATE_LIMIT_TTL = '60';
+process.env.RATE_LIMIT_MAX = '1000';
+process.env.FE_INTERNAL_SECRET = '';
