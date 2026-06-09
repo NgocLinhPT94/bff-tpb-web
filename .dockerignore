@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Test files
+test/
+
+# Documentation
+docs/
+README.md
+ARCHITECTURE.md
+CONTRIBUTING.md
+CHANGELOG.md
+LICENSE
+CODEOWNERS
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage and logs
+coverage/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc config not needed in image
+.editorconfig
+.gitleaks.toml
+.nvmrc
